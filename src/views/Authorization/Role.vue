@@ -130,7 +130,7 @@ const options = {
   version: '2.0',
   plugins: ['AMap.Geolocation']
 }
-
+let city = ''
 AMapLoader.load(options).then((AMap) => {
   const geolocation = new AMap.Geolocation({
     enableHighAccuracy: true, // 是否使用高精度定位，默认为 true
@@ -138,28 +138,24 @@ AMapLoader.load(options).then((AMap) => {
     maximumAge: 0, // 最大定位结果缓存时间，单位毫秒，默认为 0
     convert: true // 是否使用坐标转换， 默认为 true
   })
-
-  geolocation.getCurrentPosition(function (status, result) {
-    console.log(status)
-
+  geolocation.getCityInfo(function (status, result) {
     if (status === 'complete') {
-      console.log('定位成功：', result)
-      const location = result.position // 获取定位的经纬度信息
-      const address = result.formattedAddress // 获取定位的详细地址信息
-      // 这里可以继续根据经纬度信息获取天气信息
-      console.log(location, address, '111')
+      city = result.city
+      console.log('城市查询成功：', city)
     } else {
-      console.log('定位失败：', result)
+      console.log('城市查询失败：', result)
     }
   })
 })
+console.log(city.valueOf, 'ccc')
 
+// const weather_city = '苏州市'
 axios
   .get(
-    `https://restapi.amap.com/v3/weather/weatherInfo?city=110101&key=0c51b8a0df1215976f3e9c65add89c0a`
+    `https://restapi.amap.com/v3/weather/weatherInfo?city=${city.value}&key=0c51b8a0df1215976f3e9c65add89c0a`
   )
-  .then((ret) => {
-    console.log(ret.data)
+  .then((res) => {
+    console.log(res.data.lives, '天气')
   })
 
 const loading = ref(true)
