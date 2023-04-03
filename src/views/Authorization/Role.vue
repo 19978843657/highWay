@@ -130,7 +130,7 @@ const options = {
   version: '2.0',
   plugins: ['AMap.Geolocation']
 }
-let city = ref('')
+let city: string
 AMapLoader.load(options).then((AMap) => {
   const geolocation = new AMap.Geolocation({
     enableHighAccuracy: true, // 是否使用高精度定位，默认为 true
@@ -140,22 +140,22 @@ AMapLoader.load(options).then((AMap) => {
   })
   geolocation.getCityInfo(function (status, result) {
     if (status === 'complete') {
-      city.value = result.city
+      city = result.city
       console.log('城市查询成功：', city)
+      return city
     } else {
       console.log('城市查询失败：', result)
     }
+    return city
   })
+  return city
 })
-console.log(city.value, 'ccc')
-const a = ref('aaa')
-console.log(a, 'a')
-console.log(a.value, 'aa')
+console.log(city, 'ccc')
 
-// const weather_city = '苏州市'
+const weather_city = '苏州市'
 axios
   .get(
-    `https://restapi.amap.com/v3/weather/weatherInfo?city=${city.value}&key=0c51b8a0df1215976f3e9c65add89c0a`
+    `https://restapi.amap.com/v3/weather/weatherInfo?city=${weather_city}&key=0c51b8a0df1215976f3e9c65add89c0a`
   )
   .then((res) => {
     console.log(res.data.lives, '天气')
