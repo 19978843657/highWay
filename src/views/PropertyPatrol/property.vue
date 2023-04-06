@@ -1,3 +1,72 @@
+//资产
+<template>
+  <ContentWrap>
+    <Search
+      :model="{ title: '' }"
+      :schema="allSchemas.searchSchema"
+      @search="setSearchParams"
+      @reset="setSearchParams"
+    />
+
+    <div class="mb-10px">
+      <ElButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</ElButton>
+      <ElButton :loading="delLoading" type="danger" @click="delData(null, true)">
+        {{ t('exampleDemo.del') }}
+      </ElButton>
+    </div>
+
+    <Table
+      v-model:pageSize="tableObject.pageSize"
+      v-model:currentPage="tableObject.currentPage"
+      :columns="allSchemas.tableColumns"
+      :data="tableObject.tableList"
+      :loading="tableObject.loading"
+      :pagination="{
+        total: tableObject.total
+      }"
+      @register="register"
+    >
+      <template #action="{ row }">
+        <ElButton type="primary" v-hasPermi="['example:dialog:edit']" @click="action(row, 'edit')">
+          {{ t('exampleDemo.edit') }}
+        </ElButton>
+        <ElButton
+          type="success"
+          v-hasPermi="['example:dialog:view']"
+          @click="action(row, 'detail')"
+        >
+          {{ t('exampleDemo.detail') }}
+        </ElButton>
+        <ElButton type="danger" v-hasPermi="['example:dialog:delete']" @click="delData(row, false)">
+          {{ t('exampleDemo.del') }}
+        </ElButton>
+      </template>
+    </Table>
+  </ContentWrap>
+
+  <Dialog v-model="dialogVisible" :title="dialogTitle">
+    <Write
+      v-if="actionType !== 'detail'"
+      ref="writeRef"
+      :form-schema="allSchemas.formSchema"
+      :current-row="tableObject.currentRow"
+    />
+
+    <Detail
+      v-if="actionType === 'detail'"
+      :detail-schema="allSchemas.detailSchema"
+      :current-row="tableObject.currentRow"
+    />
+
+    <template #footer>
+      <ElButton v-if="actionType !== 'detail'" type="primary" :loading="loading" @click="save">
+        {{ t('exampleDemo.save') }}
+      </ElButton>
+      <ElButton @click="dialogVisible = false">{{ t('dialogDemo.close') }}</ElButton>
+    </template>
+  </Dialog>
+</template>
+
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
@@ -40,8 +109,8 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'title',
-    label: t('tableDemo.title'),
+    field: 'name',
+    label: '资产名称',
     search: {
       show: true
     },
@@ -55,12 +124,23 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'author',
-    label: t('tableDemo.author')
+    field: 'code',
+    label: '资产编号'
   },
   {
-    field: 'display_time',
-    label: t('tableDemo.displayTime'),
+    field: 'start_time',
+    label: '资产维护时间',
+    form: {
+      component: 'DatePicker',
+      componentProps: {
+        type: 'datetime',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss'
+      }
+    }
+  },
+  {
+    field: 'end_time',
+    label: '检修完成时间',
     form: {
       component: 'DatePicker',
       componentProps: {
@@ -196,71 +276,3 @@ const save = async () => {
   })
 }
 </script>
-
-<template>
-  <ContentWrap>
-    <Search
-      :model="{ title: '' }"
-      :schema="allSchemas.searchSchema"
-      @search="setSearchParams"
-      @reset="setSearchParams"
-    />
-
-    <div class="mb-10px">
-      <ElButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</ElButton>
-      <ElButton :loading="delLoading" type="danger" @click="delData(null, true)">
-        {{ t('exampleDemo.del') }}
-      </ElButton>
-    </div>
-
-    <Table
-      v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage"
-      :columns="allSchemas.tableColumns"
-      :data="tableObject.tableList"
-      :loading="tableObject.loading"
-      :pagination="{
-        total: tableObject.total
-      }"
-      @register="register"
-    >
-      <template #action="{ row }">
-        <ElButton type="primary" v-hasPermi="['example:dialog:edit']" @click="action(row, 'edit')">
-          {{ t('exampleDemo.edit') }}
-        </ElButton>
-        <ElButton
-          type="success"
-          v-hasPermi="['example:dialog:view']"
-          @click="action(row, 'detail')"
-        >
-          {{ t('exampleDemo.detail') }}
-        </ElButton>
-        <ElButton type="danger" v-hasPermi="['example:dialog:delete']" @click="delData(row, false)">
-          {{ t('exampleDemo.del') }}
-        </ElButton>
-      </template>
-    </Table>
-  </ContentWrap>
-
-  <Dialog v-model="dialogVisible" :title="dialogTitle">
-    <Write
-      v-if="actionType !== 'detail'"
-      ref="writeRef"
-      :form-schema="allSchemas.formSchema"
-      :current-row="tableObject.currentRow"
-    />
-
-    <Detail
-      v-if="actionType === 'detail'"
-      :detail-schema="allSchemas.detailSchema"
-      :current-row="tableObject.currentRow"
-    />
-
-    <template #footer>
-      <ElButton v-if="actionType !== 'detail'" type="primary" :loading="loading" @click="save">
-        {{ t('exampleDemo.save') }}
-      </ElButton>
-      <ElButton @click="dialogVisible = false">{{ t('dialogDemo.close') }}</ElButton>
-    </template>
-  </Dialog>
-</template>

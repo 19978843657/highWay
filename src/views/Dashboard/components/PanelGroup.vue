@@ -65,62 +65,8 @@ getCount()
       </ElCard>
     </ElCol>
 
-    <ElCol :xl="6" :lg="6" :md="12" :sm="12" :xs="24">
-      <ElCard shadow="hover" class="mb-20px">
-        <ElSkeleton :loading="loading" animated :rows="2">
-          <template #default>
-            <div :class="`${prefixCls}__item flex justify-between`">
-              <div>
-                <div
-                  :class="`${prefixCls}__item--icon ${prefixCls}__item--message p-16px inline-block rounded-6px`"
-                >
-                  <Icon icon="svg-icon:message" :size="40" />
-                </div>
-              </div>
-              <div class="flex flex-col justify-between">
-                <div :class="`${prefixCls}__item--text text-16px text-gray-500 text-right`">{{
-                  t('analysis.unreadInformation')
-                }}</div>
-                <CountTo
-                  class="text-20px font-700 text-right"
-                  :start-val="0"
-                  :end-val="81212"
-                  :duration="2600"
-                />
-              </div>
-            </div>
-          </template>
-        </ElSkeleton>
-      </ElCard>
-    </ElCol>
-
-    <ElCol :xl="6" :lg="6" :md="12" :sm="12" :xs="24">
-      <ElCard shadow="hover" class="mb-20px">
-        <ElSkeleton :loading="loading" animated :rows="2">
-          <template #default>
-            <div :class="`${prefixCls}__item flex justify-between`">
-              <div>
-                <div
-                  :class="`${prefixCls}__item--icon ${prefixCls}__item--money p-16px inline-block rounded-6px`"
-                >
-                  <Icon icon="svg-icon:money" :size="40" />
-                </div>
-              </div>
-              <div class="flex flex-col justify-between">
-                <div :class="`${prefixCls}__item--text text-16px text-gray-500 text-right`">{{
-                  t('analysis.transactionAmount')
-                }}</div>
-                <CountTo
-                  class="text-20px font-700 text-right"
-                  :start-val="0"
-                  :end-val="9280"
-                  :duration="2600"
-                />
-              </div>
-            </div>
-          </template>
-        </ElSkeleton>
-      </ElCard>
+    <ElCol :xl="6" :lg="12" :md="12" :sm="12" :xs="24">
+      <ElCard shadow="hover" class="mb-20px" />
     </ElCol>
 
     <ElCol :xl="6" :lg="6" :md="12" :sm="12" :xs="24">

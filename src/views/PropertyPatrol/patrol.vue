@@ -1,3 +1,4 @@
+//巡查
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'

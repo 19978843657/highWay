@@ -4,7 +4,9 @@ import type { TableData } from './types'
 export const getTableListApi = (params: any): Promise<IResponse> => {
   return request.get({ url: '/example/list', params })
 }
-
+export const testApi = (): Promise<IResponse> => {
+  return request.get({ url: '/Assets/selectAll' })
+}
 export const saveTableApi = (data: Partial<TableData>): Promise<IResponse> => {
   return request.post({ url: '/example/save', data })
 }

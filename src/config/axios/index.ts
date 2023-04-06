@@ -17,6 +17,7 @@ const request = (option: any) => {
     }
   })
 }
+
 export default {
   get: <T = any>(option: any) => {
     return request({ method: 'get', ...option }) as unknown as T

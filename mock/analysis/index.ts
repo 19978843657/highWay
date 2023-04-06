@@ -31,13 +31,7 @@ export default [
     response: () => {
       return {
         code: result_code,
-        data: [
-          { value: 1000, name: 'analysis.directAccess' },
-          { value: 310, name: 'analysis.mailMarketing' },
-          { value: 234, name: 'analysis.allianceAdvertising' },
-          { value: 135, name: 'analysis.videoAdvertising' },
-          { value: 1548, name: 'analysis.searchEngines' }
-        ]
+        data: [{ value: 1000, name: 'analysis.directAccess' }]
       }
     }
   },
