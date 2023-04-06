@@ -143,19 +143,19 @@ import type { WorkplaceTotal, Project, Dynamic } from '@/api/dashboard/workplace
 
 import axios from 'axios'
 import AMapLoader from '@amap/amap-jsapi-loader'
-import { testApi } from '@/api/table'
+// import { testApi } from '@/api/table'
 const dialogVisible = ref(false)
 const rules = reactive<FormRules>({})
 
 const Edit = () => {
   dialogVisible.value = true
 }
-const test = () => {
-  testApi().then((res) => {
-    console.log(res)
-  })
-}
-test()
+// const test = () => {
+//   testApi().then((res) => {
+//     console.log(res)
+//   })
+// }
+// test()
 
 const options = {
   key: '0c51b8a0df1215976f3e9c65add89c0a',

@@ -72,16 +72,16 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton, ElTag } from 'element-plus'
+import { ElButton } from 'element-plus'
 import { Table } from '@/components/Table'
-import { getTableListApi, saveTableApi, delTableListApi } from '@/api/table'
+import { getTableListApi, saveTableApi, delTableListApi, testApi } from '@/api/table'
 import { useTable } from '@/hooks/web/useTable'
 import { TableData } from '@/api/table/types'
-import { h, ref, unref, reactive } from 'vue'
+import { ref, unref, reactive } from 'vue'
 import Write from './components/Write.vue'
 import Detail from './components/Detail.vue'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-import { TableColumn } from '@/types/table'
+// import { TableColumn } from '@/types/table'
 const { register, tableObject, methods } = useTable<TableData>({
   getListApi: getTableListApi,
   delListApi: delTableListApi,
@@ -93,12 +93,20 @@ const { register, tableObject, methods } = useTable<TableData>({
     title: 's'
   }
 })
+
 const { getList, setSearchParams } = methods
 getList()
+
+const test = async () => {
+  const res = await testApi()
+  console.log(res.data, '111111')
+}
+test()
+
 const { t } = useI18n()
 const crudSchemas = reactive<CrudSchema[]>([
   {
-    field: 'index',
+    field: 'id',
     label: t('tableDemo.index'),
     type: 'index',
     form: {
@@ -109,7 +117,7 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'name',
+    field: 'assetsName',
     label: '资产名称',
     search: {
       show: true
@@ -124,11 +132,11 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'code',
+    field: 'assetsCode',
     label: '资产编号'
   },
   {
-    field: 'start_time',
+    field: 'createTime',
     label: '资产维护时间',
     form: {
       component: 'DatePicker',
@@ -139,7 +147,7 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'end_time',
+    field: 'finishTime',
     label: '检修完成时间',
     form: {
       component: 'DatePicker',
@@ -148,82 +156,82 @@ const crudSchemas = reactive<CrudSchema[]>([
         valueFormat: 'YYYY-MM-DD HH:mm:ss'
       }
     }
-  },
-  {
-    field: 'importance',
-    label: t('tableDemo.importance'),
-    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return h(
-        ElTag,
-        {
-          type: cellValue === 1 ? 'success' : cellValue === 2 ? 'warning' : 'danger'
-        },
-        () =>
-          cellValue === 1
-            ? t('tableDemo.important')
-            : cellValue === 2
-            ? t('tableDemo.good')
-            : t('tableDemo.commonly')
-      )
-    },
-    form: {
-      component: 'Select',
-      componentProps: {
-        style: {
-          width: '100%'
-        },
-        options: [
-          {
-            label: '重要',
-            value: 3
-          },
-          {
-            label: '良好',
-            value: 2
-          },
-          {
-            label: '一般',
-            value: 1
-          }
-        ]
-      }
-    }
-  },
-  {
-    field: 'pageviews',
-    label: t('tableDemo.pageviews'),
-    form: {
-      component: 'InputNumber',
-      value: 0
-    }
-  },
-  {
-    field: 'content',
-    label: t('exampleDemo.content'),
-    table: {
-      show: false
-    },
-    form: {
-      component: 'Editor',
-      colProps: {
-        span: 24
-      }
-    },
-    detail: {
-      span: 24
-    }
-  },
-  {
-    field: 'action',
-    width: '260px',
-    label: t('tableDemo.action'),
-    form: {
-      show: false
-    },
-    detail: {
-      show: false
-    }
   }
+  // {
+  //   field: 'importance',
+  //   label: t('tableDemo.importance'),
+  //   formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+  //     return h(
+  //       ElTag,
+  //       {
+  //         type: cellValue === 1 ? 'success' : cellValue === 2 ? 'warning' : 'danger'
+  //       },
+  //       () =>
+  //         cellValue === 1
+  //           ? t('tableDemo.important')
+  //           : cellValue === 2
+  //           ? t('tableDemo.good')
+  //           : t('tableDemo.commonly')
+  //     )
+  //   },
+  //   form: {
+  //     component: 'Select',
+  //     componentProps: {
+  //       style: {
+  //         width: '100%'
+  //       },
+  //       options: [
+  //         {
+  //           label: '重要',
+  //           value: 3
+  //         },
+  //         {
+  //           label: '良好',
+  //           value: 2
+  //         },
+  //         {
+  //           label: '一般',
+  //           value: 1
+  //         }
+  //       ]
+  //     }
+  //   }
+  // },
+  // {
+  //   field: 'pageviews',
+  //   label: t('tableDemo.pageviews'),
+  //   form: {
+  //     component: 'InputNumber',
+  //     value: 0
+  //   }
+  // },
+  // {
+  //   field: 'content',
+  //   label: t('exampleDemo.content'),
+  //   table: {
+  //     show: false
+  //   },
+  //   form: {
+  //     component: 'Editor',
+  //     colProps: {
+  //       span: 24
+  //     }
+  //   },
+  //   detail: {
+  //     span: 24
+  //   }
+  // },
+  // {
+  //   field: 'action',
+  //   width: '260px',
+  //   label: t('tableDemo.action'),
+  //   form: {
+  //     show: false
+  //   },
+  //   detail: {
+  //     show: false
+  //   }
+  // }
 ])
 const { allSchemas } = useCrudSchemas(crudSchemas)
 const dialogVisible = ref(false)

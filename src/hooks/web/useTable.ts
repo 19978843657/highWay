@@ -5,6 +5,7 @@ import { get } from 'lodash-es'
 import type { TableProps } from '@/components/Table/src/types'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableSetPropsType } from '@/types/table'
+import axios from 'axios'
 
 const { t } = useI18n()
 
@@ -127,13 +128,29 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const methods = {
     getList: async () => {
       tableObject.loading = true
-      const res = await config?.getListApi(unref(paramsObj)).finally(() => {
-        tableObject.loading = false
-      })
-      if (res) {
-        tableObject.tableList = get(res.data || {}, config?.response.list as string)
-        tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
-      }
+      // const res = await config?.getListApi(unref(paramsObj)).finally(() => {
+      //   tableObject.loading = false
+      // })
+      // if (res) {
+      //   tableObject.tableList = get(res.data || {}, config?.response.list as string)
+      //   tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
+      // }
+
+      const res = await axios
+        .get(
+          `http://127.0.0.1:8088/Assets/selectPageInfo?pageSize=${tableObject.pageSize}&pageNum=${tableObject.currentPage}`
+        )
+        // .then((res) => {
+        //   console.log(res, 'sss')
+        // })
+        .finally(() => {
+          tableObject.loading = false
+        })
+      console.log(res, 'ssssss')
+      tableObject.tableList = res.data.data || {}
+      tableObject.total = res.data.pages || {}
+
+      // tableObject.total=
     },
     setProps: async (props: TableProps = {}) => {
       const table = await getTable()
