@@ -116,9 +116,12 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       proxy: {
         // 选项写法
         '/api': {
-          target: 'http://localhost:3000',
+          target:'http://127.0.0.0:8088',
+          // target: 'http://localhost:3000',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, '')
+          // rewrite: path => path.replace(/^\/frontApp/, '')
+
         }
       },
       hmr: {
