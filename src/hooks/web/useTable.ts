@@ -42,7 +42,7 @@ interface TableObject<T = any> {
 export const useTable = <T = any>(config?: UseTableConfig<T>) => {
   const tableObject = reactive<TableObject<T>>({
     // 页数
-    pageSize: 10,
+    pageSize: 5,
     // 当前页
     currentPage: 1,
     // 总条数
@@ -107,14 +107,16 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
     return table
   }
 
-  const delData = async (ids: string[] | number[]) => {
-    const res = await (config?.delListApi && config?.delListApi(ids))
+  const delData = async (id) => {
+    // const res = await (config?.delListApi && config?.delListApi(ids))
+    const res = await axios.get(`http://127.0.0.1:8088/Assets/deleteById?id=${id}`)
+
     if (res) {
-      ElMessage.success(t('common.delSuccess'))
+      ElMessage.success('删除成功')
 
       // 计算出临界点
       const currentPage =
-        tableObject.total % tableObject.pageSize === ids.length || tableObject.pageSize === 1
+        tableObject.total % tableObject.pageSize === id.length || tableObject.pageSize === 1
           ? tableObject.currentPage > 1
             ? tableObject.currentPage - 1
             : tableObject.currentPage
@@ -147,8 +149,10 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
           tableObject.loading = false
         })
       console.log(res, 'ssssss')
-      tableObject.tableList = res.data.data || {}
-      tableObject.total = res.data.pages || {}
+      tableObject.tableList = res.data.data.list || {}
+      tableObject.total = res.data.data.total || {}
+      console.log(tableObject.tableList, '333333')
+      console.log(tableObject.total, '444444444')
 
       // tableObject.total=
     },
@@ -175,29 +179,29 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
       methods.getList()
     },
     // 删除数据
-    delList: async (ids: string[] | number[], multiple: boolean, message = true) => {
+    delList: async (id, multiple: boolean, message = true) => {
       const tableRef = await getTable()
       if (multiple) {
         if (!tableRef?.selections.length) {
-          ElMessage.warning(t('common.delNoData'))
+          ElMessage.warning('请选择需要删除的数据')
           return
         }
       } else {
         if (!tableObject.currentRow) {
-          ElMessage.warning(t('common.delNoData'))
+          ElMessage.warning('请选择需要删除的数据')
           return
         }
       }
       if (message) {
-        ElMessageBox.confirm(t('common.delMessage'), t('common.delWarning'), {
-          confirmButtonText: t('common.delOk'),
-          cancelButtonText: t('common.delCancel'),
+        ElMessageBox.confirm('是否要删除所选中的数据', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
           type: 'warning'
         }).then(async () => {
-          await delData(ids)
+          await delData(id)
         })
       } else {
-        await delData(ids)
+        await delData(id)
       }
     }
   }

@@ -15,7 +15,7 @@ const props = defineProps({
   // icon color
   color: propTypes.string,
   // icon size
-  size: propTypes.number.def(16)
+  size: propTypes.number.def(17)
 })
 
 const elRef = ref<ElRef>(null)

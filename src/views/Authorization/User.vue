@@ -1,3 +1,15 @@
+<template>
+  <ContentWrap :title="t('userDemo.title')" :message="t('userDemo.message')">
+    <Table :columns="columns" :data="tableDataList" :loading="loading" :selection="false">
+      <template #action="data">
+        <ElButton type="primary" @click="actionFn(data as TableSlotDefault)">
+          {{ t('tableDemo.action') }}
+        </ElButton>
+      </template>
+    </Table>
+  </ContentWrap>
+</template>
+
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -76,15 +88,3 @@ const actionFn = (data: TableSlotDefault) => {
   console.log(data)
 }
 </script>
-
-<template>
-  <ContentWrap :title="t('userDemo.title')" :message="t('userDemo.message')">
-    <Table :columns="columns" :data="tableDataList" :loading="loading" :selection="false">
-      <template #action="data">
-        <ElButton type="primary" @click="actionFn(data as TableSlotDefault)">
-          {{ t('tableDemo.action') }}
-        </ElButton>
-      </template>
-    </Table>
-  </ContentWrap>
-</template>

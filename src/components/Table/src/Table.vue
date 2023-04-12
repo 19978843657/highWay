@@ -22,7 +22,7 @@ export default defineComponent({
       default: () => []
     },
     // 展开行
-    expand: propTypes.bool.def(false),
+    expand: propTypes.bool.def(true),
     // 是否展示分页
     pagination: {
       type: Object as PropType<Pagination>,

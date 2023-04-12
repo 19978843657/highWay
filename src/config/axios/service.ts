@@ -14,8 +14,8 @@ import { ElMessage } from 'element-plus'
 
 const { result_code, base_url } = config
 
-// export const PATH_URL = base_url[import.meta.env.VITE_API_BASEPATH]
-export const PATH_URL = 'http://127.0.0.0:8088'[import.meta.env.VITE_API_BASEPATH]
+export const PATH_URL = base_url[import.meta.env.VITE_API_BASEPATH]
+// export const PATH_URL = 'http://127.0.0.0:8088'[import.meta.env.VITE_API_BASEPATH]
 
 // 创建axios实例
 const service: AxiosInstance = axios.create({

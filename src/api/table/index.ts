@@ -1,5 +1,5 @@
 import request from '@/config/axios'
-import type { TableData } from './types'
+// import type { TableData } from './types'
 import axios from '@/config/axios'
 
 export const getTableListApi = (params: any): Promise<IResponse> => {
@@ -8,11 +8,11 @@ export const getTableListApi = (params: any): Promise<IResponse> => {
 export const testApi = (): Promise<IResponse> => {
   return request.get({ url: '/Assets/selectAll' })
 }
-export const saveTableApi = (data: Partial<TableData>): Promise<IResponse> => {
+export const saveTableApi = (data): Promise<IResponse> => {
   return request.post({ url: '/example/save', data })
 }
 
-export const getTableDetApi = (id: string): Promise<IResponse<TableData>> => {
+export const getTableDetApi = (id: string) => {
   return request.get({ url: '/example/detail', params: { id } })
 }
 

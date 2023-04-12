@@ -171,14 +171,14 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
       //   ]
       // },
 
-      {
-        path: 'count-to',
-        component: () => import('@/views/Components/CountTo.vue'),
-        name: 'CountTo',
-        meta: {
-          title: t('router.countTo')
-        }
-      },
+      // {
+      //   path: 'count-to',
+      //   component: () => import('@/views/Components/CountTo.vue'),
+      //   name: 'CountTo',
+      //   meta: {
+      //     title: t('router.countTo')
+      //   }
+      // },
       {
         path: 'trafficCase',
         component: () => import('@/views/Case/traffic_case.vue'),
