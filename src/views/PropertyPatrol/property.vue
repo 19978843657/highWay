@@ -84,11 +84,86 @@
     <!-- :form-schema="allSchemas.formSchema" -->
     <!-- <Detail v-if="actionType === 'detail'" :current-row="tableObject.currentRow" /> -->
     <!-- :detail-schema="allSchemas.detailSchema" -->
+    <el-form
+      ref="dialogValueRef"
+      :model="dialogValue"
+      :rules="rules"
+      label-width="120px"
+      class="demo-dialogValue"
+      status-icon
+    >
+      <ElFormItem label="资产编号" prop="assetsCode">
+        <ElInput v-model="dialogValue.assetsCode" />
+      </ElFormItem>
+      <ElFormItem label="资产名称" prop="assetsName">
+        <ElInput v-model="dialogValue.assetsName" />
+      </ElFormItem>
+      <!-- <ElFormItem label="资产负责人" prop="count">
+        <el-select-v2
+          v-model="dialogValue.userId"
+          placeholder="Activity count"
+          :options="$options"
+        />
+      </ElFormItem> -->
+
+      <!-- <ElFormItem label="时间 time" required>
+        <el-col :span="11">
+          <ElFormItem prop="date1">
+            <el-date-picker
+              v-model="ruleForm.date1"
+              type="date"
+              label="Pick a date"
+              placeholder="Pick a date"
+              style="width: 100%"
+            />
+          </ElFormItem>
+        </el-col>
+        <el-col class="text-center" :span="2">
+          <span class="text-gray-500">-</span>
+        </el-col>
+        <el-col :span="11">
+          <ElFormItem prop="date2">
+            <el-time-picker
+              v-model="ruleForm.date2"
+              label="Pick a time"
+              placeholder="Pick a time"
+              style="width: 100%"
+            />
+          </ElFormItem>
+        </el-col>
+      </ElFormItem> -->
+
+      <ElFormItem label="资产类型" prop="assetsType">
+        <ElRadioGroup v-model="dialogValue.assetsType">
+          <ElRadio label="IT设备" />
+          <ElRadio label="设备维修" />
+          <ElRadio label="安全设备" />
+          <ElRadio label="财务" />
+        </ElRadioGroup>
+      </ElFormItem>
+      <ElFormItem label="资产维修状态" prop="state">
+        <ElSwitch
+          v-model="state2"
+          @click="switch_state(dialogValue.state)"
+          v-if="dialogValue.state == 0"
+        />
+        <ElSwitch v-model="state1" @click="switch_state(dialogValue.state)" v-else />
+      </ElFormItem>
+      <ElFormItem label="备注更多信息" prop="assetsData">
+        <el-input v-model="dialogValue.assetsData" type="textarea" />
+      </ElFormItem>
+    </el-form>
     <template #footer>
-      <ElButton v-if="actionType !== 'detail'" type="primary" :loading="loading">
-        {{ t('exampleDemo.save') }}
+      <ElButton
+        v-if="actionType == 'edit'"
+        type="primary"
+        @click="Edit(dialogValue)"
+        :loading="loading"
+      >
+        保存修改
       </ElButton>
-      <ElButton @click="dialogVisible = false">{{ t('dialogDemo.close') }}</ElButton>
+      <ElButton v-else type="primary" :loading="loading"> 新增资产 </ElButton>
+      <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
   </Dialog>
 </template>
@@ -97,8 +172,23 @@
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
-import { useI18n } from '@/hooks/web/useI18n'
-import { ElButton, ElTableColumn, ElTable, ElTag, ElPopover, ElPagination } from 'element-plus'
+import {
+  ElButton,
+  ElTableColumn,
+  ElTable,
+  ElTag,
+  ElPopover,
+  ElPagination,
+  ElForm,
+  ElInput,
+  FormInstance,
+  FormRules,
+  ElFormItem,
+  ElRadioGroup,
+  ElRadio,
+  ElSwitch,
+  ElMessage
+} from 'element-plus'
 // import { Table } from '@/components/Table'
 import { getTableListApi, delTableListApi } from '@/api/table'
 import { useTable } from '@/hooks/web/useTable'
@@ -107,7 +197,16 @@ import { ref, reactive } from 'vue'
 // import Write from './components/Write.vue'
 // import Detail from './components/Detail.vue'
 import qrcode from 'qrcode'
+import axios from 'axios'
+const state1 = ref(false)
+const state2 = ref(true)
 
+const rules = reactive<FormRules>({
+  assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
+  assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }],
+  assetsType: [{ required: true, message: '请输入资产类型', trigger: 'blur' }]
+})
+const dialogValueRef = ref<FormInstance>()
 // import axios from 'axios'
 // import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
 // import { TableColumn } from '@/types/table'
@@ -123,10 +222,31 @@ const { register, tableObject, methods } = useTable<TableData>({
     title: 's'
   }
 })
-
 const { getList, setSearchParams } = methods
-
 getList()
+
+//修改
+const Edit = async (dialogValue) => {
+  const res = await axios.put(
+    `http://127.0.0.1:8088/Assets/update?id=${dialogValue.id}&state=${dialogValue.state}&assetsType=${dialogValue.assetsType}`
+  )
+  if (res) {
+    ElMessage.success('编辑成功')
+  } else {
+    ElMessage.warning('编辑失败')
+  }
+  getList()
+  dialogVisible.value = false
+  getList()
+}
+//修改switch状态
+const switch_state = (state) => {
+  if (state == 0) {
+    dialogValue.value.state = '1'
+  } else {
+    dialogValue.value.state = '0'
+  }
+}
 
 //分页查询
 const handleSizeChange = (val: Number) => {
@@ -182,8 +302,6 @@ const getQrcode = (row) => {
 // getProperty()
 
 const queryTable = reactive<{}>
-
-const { t } = useI18n()
 
 // const end_time = ref('')
 // if (condition) {
@@ -321,6 +439,7 @@ const { t } = useI18n()
 // const { allSchemas } = useCrudSchemas(crudSchemas)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
+const dialogValue = ref()
 // const AddAction = () => {
 //   dialogTitle.value = t('exampleDemo.add')
 //   tableObject.currentRow = null
@@ -341,11 +460,13 @@ const delData = async (row, multiple: boolean) => {
     delLoading.value = false
   })
 }
+
+//编辑&新增
 const actionType = ref('')
 const action = (row, type: string) => {
   dialogTitle.value = type === 'edit' ? '编辑' : '新增'
   actionType.value = type
-  tableObject.currentRow = row
+  dialogValue.value = row
   dialogVisible.value = true
 }
 // const writeRef = ref<ComponentRef<typeof Write>>()

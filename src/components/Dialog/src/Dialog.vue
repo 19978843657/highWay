@@ -48,13 +48,6 @@ watch(
     immediate: true
   }
 )
-
-const dialogStyle = computed(() => {
-  console.log(unref(dialogHeight))
-  return {
-    height: unref(dialogHeight)
-  }
-})
 </script>
 
 <template>
@@ -81,7 +74,7 @@ const dialogStyle = computed(() => {
       </div>
     </template>
 
-    <ElScrollbar :style="dialogStyle">
+    <ElScrollbar>
       <slot></slot>
     </ElScrollbar>
 
