@@ -5,8 +5,43 @@
     :message="'高速公路的资产管理，展示资产编号、名称、类型、负责人等信息，可以扫描二维码查看详细信息。'"
   >
     <!-- :schema="allSchemas.searchSchema" -->
-    <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" />
-
+    <!-- <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" /> -->
+    <div class="flex justify-between">
+      <div>
+        <ElButton @click="action('', 'add')" type="primary">登记资产</ElButton>
+      </div>
+      <div>
+        <el-form :inline="true" :model="tableObject" label-width="30px">
+          <ElFormItem class="query-form-item">
+            <ElInput v-model="tableObject.assetsCode" placeholder="资产编号查询" clearable />
+          </ElFormItem>
+          <ElFormItem class="query-form-item">
+            <ElInput v-model="tableObject.assetsName" placeholder="资产名称查询" clearable />
+          </ElFormItem>
+          <ElFormItem class="query-form-item">
+            <ElSelect
+              v-model="tableObject.state"
+              placeholder="资产维修状态查询"
+              width="15"
+              clearable
+            >
+              <ElOption
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </ElSelect>
+          </ElFormItem>
+          <ElFormItem>
+            <ElButton type="primary" class="w-60px" @click="getList()">
+              <Icon icon="ep:search" class="mr-3px" />
+              查询
+            </ElButton>
+          </ElFormItem>
+        </el-form>
+      </div>
+    </div>
     <!-- <div class="mb-10px">
       <ElButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</ElButton>
       <ElButton :loading="delLoading" type="danger" @click="delData(null, true)">
@@ -162,7 +197,9 @@
       >
         保存修改
       </ElButton>
-      <ElButton v-else type="primary" :loading="loading"> 新增资产 </ElButton>
+      <ElButton v-else type="primary" @click="Add(dialogValue)" :loading="loading">
+        新增资产
+      </ElButton>
       <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
   </Dialog>
@@ -170,7 +207,7 @@
 
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
-import { Search } from '@/components/Search'
+// import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
 import {
   ElButton,
@@ -187,7 +224,9 @@ import {
   ElRadioGroup,
   ElRadio,
   ElSwitch,
-  ElMessage
+  ElMessage,
+  ElOption,
+  ElSelect
 } from 'element-plus'
 // import { Table } from '@/components/Table'
 import { getTableListApi, delTableListApi } from '@/api/table'
@@ -200,10 +239,37 @@ import qrcode from 'qrcode'
 import axios from 'axios'
 const state1 = ref(false)
 const state2 = ref(true)
+const options = [
+  {
+    value: '0',
+    label: '未完成'
+  },
+  {
+    value: '1',
+    label: '已完成'
+  }
+]
+// const queryForm = reactive<{
+//   assetsCode: string | null
+//   createTime: string
+//   assetsName: string
+//   state: string
+//   userId: any
+//   pageIndex: number
+//   pageSize: number
+// }>({
+//   assetsCode: '',
+//   createTime: '',
+//   assetsName: '',
+//   state: '',
+//   userId: null,
+//   pageIndex: 1,
+//   pageSize: 5
+// })
 
 const rules = reactive<FormRules>({
   assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
-  assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }],
+  // assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }],
   assetsType: [{ required: true, message: '请输入资产类型', trigger: 'blur' }]
 })
 const dialogValueRef = ref<FormInstance>()
@@ -222,8 +288,25 @@ const { register, tableObject, methods } = useTable<TableData>({
     title: 's'
   }
 })
-const { getList, setSearchParams } = methods
+const { getList } = methods
+// setSearchParams
 getList()
+
+//搜索
+
+//新增
+const Add = async (dialogValueRef) => {
+  const res = await axios.post(
+    `http://127.0.0.1:8088/Assets/update?assetsName=${dialogValueRef.assetsName}&state=${dialogValueRef.state}&assetsType=${dialogValue.value.assetsType}`
+  )
+  if (res) {
+    ElMessage.success('登记成功')
+  } else {
+    ElMessage.warning('登记失败')
+  }
+  getList()
+  dialogVisible.value = false
+}
 
 //修改
 const Edit = async (dialogValue) => {
@@ -301,7 +384,7 @@ const getQrcode = (row) => {
 // }
 // getProperty()
 
-const queryTable = reactive<{}>
+// const queryTable = reactive<{}>
 
 // const end_time = ref('')
 // if (condition) {
@@ -464,7 +547,7 @@ const delData = async (row, multiple: boolean) => {
 //编辑&新增
 const actionType = ref('')
 const action = (row, type: string) => {
-  dialogTitle.value = type === 'edit' ? '编辑' : '新增'
+  dialogTitle.value = type === 'edit' ? '编辑资产' : '登记资产'
   actionType.value = type
   dialogValue.value = row
   dialogVisible.value = true

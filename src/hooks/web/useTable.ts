@@ -37,6 +37,10 @@ interface TableObject<T = any> {
   params: any
   loading: boolean
   currentRow: Nullable<T>
+  assetsCode: string | null
+  assetsName: string
+  state: string | null
+  userId: any
 }
 
 export const useTable = <T = any>(config?: UseTableConfig<T>) => {
@@ -56,7 +60,11 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
     // 加载中
     loading: true,
     // 当前行的数据
-    currentRow: null
+    currentRow: null,
+    assetsCode: '',
+    assetsName: '',
+    state: '',
+    userId: null
   })
 
   const paramsObj = computed(() => {
@@ -137,10 +145,11 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
       //   tableObject.tableList = get(res.data || {}, config?.response.list as string)
       //   tableObject.total = get(res.data || {}, config?.response?.total as string) || 0
       // }
+      // request.get({ url: '/example/save', data })
 
       const res = await axios
         .get(
-          `http://127.0.0.1:8088/Assets/selectPageInfo?pageSize=${tableObject.pageSize}&pageNum=${tableObject.currentPage}`
+          `http://127.0.0.1:8088/Assets/selectPageInfo?pageSize=${tableObject.pageSize}&pageNum=${tableObject.currentPage}&state=${tableObject.state}`
         )
         // .then((res) => {
         //   console.log(res, 'sss')
