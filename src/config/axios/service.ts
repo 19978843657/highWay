@@ -11,11 +11,12 @@ import qs from 'qs'
 import { config } from './config'
 
 import { ElMessage } from 'element-plus'
+import router from '@/router'
 
 const { result_code, base_url } = config
 
-export const PATH_URL = base_url[import.meta.env.VITE_API_BASEPATH]
-// export const PATH_URL = 'http://127.0.0.0:8088'[import.meta.env.VITE_API_BASEPATH]
+// export const PATH_URL = base_url[import.meta.env.VITE_API_BASEPATH]
+export const PATH_URL = 'http://127.0.0.1:8088'
 
 // 创建axios实例
 const service: AxiosInstance = axios.create({
@@ -26,6 +27,7 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    config.headers['token'] = sessionStorage.getItem('token')
     if (
       config.method === 'post' &&
       (config.headers as AxiosRequestHeaders)['Content-Type'] ===
@@ -60,12 +62,15 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   (response: AxiosResponse<any>) => {
+    console.log(response)
+
     if (response.config.responseType === 'blob') {
       // 如果是文件流，直接过
       return response
     } else if (response.data.code === result_code) {
       return response.data
     } else {
+      router.push('/login')
       ElMessage.error(response.data.message)
     }
   },

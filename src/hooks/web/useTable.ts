@@ -39,7 +39,7 @@ interface TableObject<T = any> {
   currentRow: Nullable<T>
   assetsCode: string | null
   assetsName: string
-  state: string | null
+  state: string
   userId: any
 }
 
@@ -149,7 +149,7 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
 
       const res = await axios
         .get(
-          `http://127.0.0.1:8088/Assets/selectPageInfo?pageSize=${tableObject.pageSize}&pageNum=${tableObject.currentPage}&state=${tableObject.state}`
+          `http://127.0.0.1:8088/Assets/selectPageInfo?pageSize=${tableObject.pageSize}&pageNum=${tableObject.currentPage}`
         )
         // .then((res) => {
         //   console.log(res, 'sss')

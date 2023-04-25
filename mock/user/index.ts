@@ -80,7 +80,7 @@ export default [
   },
   // 退出接口
   {
-    url: '/user/loginOut',
+    url: '/login/loginOut',
     method: 'get',
     timeout,
     response: () => {

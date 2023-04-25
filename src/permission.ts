@@ -23,6 +23,23 @@ const { loadStart, loadDone } = usePageLoading()
 
 const whiteList = ['/login'] // 不重定向白名单
 
+const dictObj: Recordable = {
+  importance: [
+    {
+      value: 0,
+      label: 'tableDemo.commonly'
+    },
+    {
+      value: 1,
+      label: 'tableDemo.good'
+    },
+    {
+      value: 2,
+      label: 'tableDemo.important'
+    }
+  ]
+}
+
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
@@ -32,11 +49,13 @@ router.beforeEach(async (to, from, next) => {
     } else {
       if (!dictStore.getIsSetDict) {
         // 获取所有字典
-        const res = await getDictApi()
-        if (res) {
-          dictStore.setDictObj(res.data)
-          dictStore.setIsSetDict(true)
-        }
+        // const res = await getDictApi()
+        console.log('zidian')
+
+        // if (res) {
+        dictStore.setDictObj(dictObj)
+        dictStore.setIsSetDict(true)
+        // }
       }
       if (permissionStore.getIsAddRouters) {
         next()
