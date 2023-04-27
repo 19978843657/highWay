@@ -6,21 +6,21 @@
   >
     <!-- :schema="allSchemas.searchSchema" -->
     <!-- <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" /> -->
-    <div class="flex justify-between">
+    <div class="flex justify-between" id="add_search">
       <div>
         <ElButton @click="action('', 'add')" type="primary">登记资产</ElButton>
       </div>
       <div>
-        <el-form :inline="true" :model="tableObject" label-width="30px">
+        <el-form :inline="true" :model="queryTable" label-width="30px">
           <ElFormItem class="query-form-item">
-            <ElInput v-model="tableObject.assetsCode" placeholder="资产编号查询" clearable />
+            <ElInput v-model="queryTable.assetsCode" placeholder="资产编号查询" clearable />
           </ElFormItem>
           <ElFormItem class="query-form-item">
-            <ElInput v-model="tableObject.assetsName" placeholder="资产名称查询" clearable />
+            <ElInput v-model="queryTable.assetsName" placeholder="资产名称查询" clearable />
           </ElFormItem>
           <ElFormItem class="query-form-item">
             <ElSelect
-              v-model="tableObject.state"
+              v-model="queryTable.state"
               placeholder="资产维修状态查询"
               width="15"
               clearable
@@ -52,11 +52,13 @@
     <!-- :pagination="{
         total: tableObject.total
       }" -->
+
+    <!-- 表格 -->
     <ElTable
-      v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage"
-      :data="tableObject.tableList"
-      v-loading="tableObject.loading"
+      v-model:pageSize="queryTable.pageSize"
+      v-model:currentPage="queryTable.pageNum"
+      :data="tableData"
+      v-loading="loading"
       @register="register"
     >
       <!-- <template #empty>
@@ -96,24 +98,25 @@
       <ElTableColumn label="操作" align="center">
         <template #default="{ row }">
           <Icon icon="ei:pencil" color="#90bb27" @click="action(row, 'edit')" class="icon" />
-          <Icon icon="ei:trash" color="#f56c6c" @click="delData(row, false)" class="icon" />
+          <Icon icon="ei:trash" color="#f56c6c" @click="delData(row.id)" class="icon" />
         </template>
       </ElTableColumn>
     </ElTable>
+    <!-- 分页 -->
     <ElPagination
       small
       background
       layout=" prev, pager, next,sizes,total"
-      v-model:currentPage="tableObject.currentPage"
-      v-model:page-size="tableObject.pageSize"
+      v-model:currentPage="queryTable.pageNum"
+      v-model:page-size="queryTable.pageSize"
       :page-sizes="[5, 10, 20, 50, 100]"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :total="tableObject.total"
+      :total="total"
       class="pagination"
     />
   </ContentWrap>
-
+  <!-- 弹窗 -->
   <Dialog v-model="dialogVisible" :title="dialogTitle">
     <!-- <Write v-if="actionType !== 'detail'" ref="writeRef" :current-row="tableObject.currentRow" /> -->
     <!-- :form-schema="allSchemas.formSchema" -->
@@ -229,14 +232,16 @@ import {
   ElSelect
 } from 'element-plus'
 // import { Table } from '@/components/Table'
-import { getTableListApi, delTableListApi } from '@/api/table'
-import { useTable } from '@/hooks/web/useTable'
-import { TableData } from '@/api/table/types'
-import { ref, reactive } from 'vue'
+// import { getTableListApi, delTableListApi } from '@/api/table'
+// import { useTable } from '@/hooks/web/useTable'
+// import { TableData } from '@/api/table/types'
+import { ref, reactive, onMounted, watch } from 'vue'
 // import Write from './components/Write.vue'
 // import Detail from './components/Detail.vue'
 import qrcode from 'qrcode'
 import axios from 'axios'
+import { getProperty, AddProperty, deleteProperty } from '@/api/PropertyPatrol'
+const loading = ref(false)
 const state1 = ref(false)
 const state2 = ref(true)
 const options = [
@@ -249,23 +254,25 @@ const options = [
     label: '已完成'
   }
 ]
-// const queryForm = reactive<{
-//   assetsCode: string | null
-//   createTime: string
-//   assetsName: string
-//   state: string
-//   userId: any
-//   pageIndex: number
-//   pageSize: number
-// }>({
-//   assetsCode: '',
-//   createTime: '',
-//   assetsName: '',
-//   state: '',
-//   userId: null,
-//   pageIndex: 1,
-//   pageSize: 5
-// })
+const total = ref(0)
+const tableData = ref([])
+const queryTable = reactive<{
+  assetsCode: any
+  createTime: any
+  assetsName: any
+  state: any
+  userId: any
+  pageNum: number
+  pageSize: number
+}>({
+  assetsCode: null,
+  createTime: null,
+  assetsName: null,
+  state: null,
+  userId: null,
+  pageNum: 1,
+  pageSize: 5
+})
 
 const rules = reactive<FormRules>({
   assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
@@ -277,34 +284,66 @@ const dialogValueRef = ref<FormInstance>()
 // import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
 // import { TableColumn } from '@/types/table'
 // const Tabel_loading = ref(true)
-const { register, tableObject, methods } = useTable<TableData>({
-  getListApi: getTableListApi,
-  delListApi: delTableListApi,
-  response: {
-    list: 'list',
-    total: 'total'
-  },
-  defaultParams: {
-    title: 's'
-  }
-})
-const { getList } = methods
-// setSearchParams
-getList()
+// const { register, tableObject, methods } = useTable<TableData>({
+//   getListApi: getTableListApi,
+//   delListApi: delTableListApi,
+//   response: {
+//     list: 'list',
+//     total: 'total'
+//   },
+//   defaultParams: {
+//     title: 's'
+//   }
+// })
+// const { getList } = methods
+// getList()
 
-//搜索
+//查询获取数据
+const getData = () => {
+  loading.value = true
+  getProperty(queryTable)
+    .then((res) => {
+      tableData.value = res.data.list || {}
+      total.value = res.data.total || 0
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+watch(
+  () => queryTable.pageNum,
+  () => {
+    getData()
+  }
+)
+
+watch(
+  () => queryTable.pageSize,
+  () => {
+    // 当前页不为1时，修改页数后会导致多次调用getList方法
+    if (queryTable.pageNum === 1) {
+      getData()
+    } else {
+      queryTable.pageSize = 1
+      getData()
+    }
+  }
+)
 
 //新增
-const Add = async (dialogValueRef) => {
-  const res = await axios.post(
-    `http://127.0.0.1:8088/Assets/update?assetsName=${dialogValueRef.assetsName}&state=${dialogValueRef.state}&assetsType=${dialogValue.value.assetsType}`
-  )
-  if (res) {
-    ElMessage.success('登记成功')
-  } else {
-    ElMessage.warning('登记失败')
-  }
-  getList()
+const Add = async () => {
+  // const res = await axios.post(
+  //   `http://127.0.0.1:8088/Assets/update?assetsName=${dialogValueRef.value.assetsName}&state=${dialogValueRef.value.state}&assetsType=${dialogValue.value.assetsType}`
+  // )
+  AddProperty(dialogValueRef).then((res) => {
+    if (res) {
+      ElMessage.success('登记成功')
+    } else {
+      ElMessage.warning('登记失败')
+    }
+  })
+  getData()
   dialogVisible.value = false
 }
 
@@ -318,9 +357,9 @@ const Edit = async (dialogValue) => {
   } else {
     ElMessage.warning('编辑失败')
   }
-  getList()
+  getData()
   dialogVisible.value = false
-  getList()
+  getData()
 }
 //修改switch状态
 const switch_state = (state) => {
@@ -530,18 +569,21 @@ const dialogValue = ref()
 //   actionType.value = ''
 // }
 //删除
-const delLoading = ref(false)
-const delData = async (row, multiple: boolean) => {
-  tableObject.currentRow = row
-  const { delList, getSelections } = methods
-  const selections = await getSelections()
-  delLoading.value = true
-  await delList(
-    multiple ? selections.map((v) => v.id) : [tableObject.currentRow?.id as string],
-    multiple
-  ).finally(() => {
-    delLoading.value = false
-  })
+// const delLoading = ref(false)
+const delData = async (id) => {
+  console.log(id)
+  deleteProperty(id)
+
+  // tableObject.currentRow = row
+  // const { delList, getSelections } = methods
+  // const selections = await getSelections()
+  // delLoading.value = true
+  // await delList(
+  //   multiple ? selections.map((v) => v.id) : [tableObject.currentRow?.id as string],
+  //   multiple
+  // ).finally(() => {
+  //   delLoading.value = false
+  // })
 }
 
 //编辑&新增
@@ -553,7 +595,6 @@ const action = (row, type: string) => {
   dialogVisible.value = true
 }
 // const writeRef = ref<ComponentRef<typeof Write>>()
-const loading = ref(false)
 // const save = async () => {
 //   const write = unref(writeRef)
 //   await write?.elFormRef?.validate(async (isValid) => {
@@ -573,6 +614,11 @@ const loading = ref(false)
 //     }
 //   })
 // }
+
+onMounted(() => {
+  getData()
+  Add()
+})
 </script>
 <style>
 .icon {

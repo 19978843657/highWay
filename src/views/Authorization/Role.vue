@@ -38,81 +38,75 @@
         </ElRow>
       </ElSkeleton>
     </ElCard>
-  </div>
 
-  <ElRow class="mt-20px" :gutter="20" justify="space-between">
-    <ElCol :xl="16" :lg="16" :md="24" :sm="24" :xs="24" class="mb-20px">
-      <ElCard shadow="never">
-        <template #header>
-          <div class="flex justify-between">
-            <span>快速跳转</span>
+    <ElRow class="mt-20px" :gutter="20" justify="space-between">
+      <ElCol :xl="16" :lg="16" :md="24" :sm="24" :xs="24" class="mb-20px">
+        <ElCard shadow="never">
+          <template #header>
+            <div class="flex justify-between">
+              <span>快速跳转</span>
+            </div>
+          </template>
+          <ElSkeleton :loading="loading" animated>
+            <ElRow>
+              <!-- v-for="(item, index) in projects"
+              :key="`card-${index}`" -->
+              <ElCol :xl="8" :lg="8" :md="12" :sm="24" :xs="24">
+                <ElCard shadow="hover">
+                  <div class="flex items-center">
+                    <Icon :size="25" class="mr-10px" />
+                    <span class="text-16px"></span>
+                  </div>
+                  <div class="mt-15px text-14px text-gray-400"></div>
+                  <div class="mt-20px text-12px text-gray-400 flex justify-between">
+                    <span></span>
+                    <span></span>
+                  </div>
+                </ElCard>
+              </ElCol>
+            </ElRow>
+          </ElSkeleton>
+        </ElCard>
+      </ElCol>
+      <ElCol :xl="8" :lg="8" :md="24" :sm="24" :xs="24" class="mb-20px">
+        <ElCard shadow="never">
+          <div class="mb-10px flex justify-between">
+            <span>个人具体信息</span>
+            <ElLink :underline="false" style="font-weight: 550; color: #80cd46" @click="Edit()">
+              编辑
+            </ElLink>
           </div>
-        </template>
-        <ElSkeleton :loading="loading" animated>
-          <ElRow>
-            <ElCol
-              v-for="(item, index) in projects"
-              :key="`card-${index}`"
-              :xl="8"
-              :lg="8"
-              :md="12"
-              :sm="24"
-              :xs="24"
-            >
-              <ElCard shadow="hover">
-                <div class="flex items-center">
-                  <Icon :icon="item.icon" :size="25" class="mr-10px" />
-                  <span class="text-16px">{{ item.name }}</span>
-                </div>
-                <div class="mt-15px text-14px text-gray-400">{{ t(item.message) }}</div>
-                <div class="mt-20px text-12px text-gray-400 flex justify-between">
-                  <span>{{ item.personal }}</span>
-                  <span>{{ formatTime(item.time, 'yyyy-MM-dd') }}</span>
-                </div>
-              </ElCard>
-            </ElCol>
-          </ElRow>
-        </ElSkeleton>
-      </ElCard>
-    </ElCol>
-    <ElCol :xl="8" :lg="8" :md="24" :sm="24" :xs="24" class="mb-20px">
-      <ElCard shadow="never">
-        <div class="mb-10px flex justify-between">
-          <span>个人具体信息</span>
-          <ElLink :underline="false" style="font-weight: 550; color: #80cd46" @click="Edit()">
-            编辑
-          </ElLink>
-        </div>
-        <hr />
-        <br />
-        <ElSkeleton :loading="loading" animated>
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">姓　名:</ElCol>
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">用户名:</ElCol>
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">密　码:</ElCol>
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">权　限:</ElCol>
-        </ElSkeleton>
-      </ElCard>
-    </ElCol>
-  </ElRow>
-  <ElDialog v-model="dialogVisible" title="个人信息编辑" width="30%" draggable>
-    <el-form :rules="rules">
-      <ElFormItem label="姓　名:" prop="name">
-        <ElInput placeholder="请输入内容" clearable />
-      </ElFormItem>
-      <ElFormItem label="用户名:" prop="userName">
-        <el-input placeholder="请输入内容" clearable />
-      </ElFormItem>
-      <ElFormItem label="密　码:" prop="password">
-        <el-input placeholder="请输入内容" clearable show-password />
-      </ElFormItem>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确定</el-button>
-      </span>
-    </template>
-  </ElDialog>
+          <hr />
+          <br />
+          <ElSkeleton :loading="loading" animated>
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">姓　名:</ElCol>
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">用户名:</ElCol>
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">密　码:</ElCol>
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">权　限:</ElCol>
+          </ElSkeleton>
+        </ElCard>
+      </ElCol>
+    </ElRow>
+    <ElDialog v-model="dialogVisible" title="个人信息编辑" width="30%" draggable>
+      <el-form :rules="rules">
+        <ElFormItem label="姓　名:" prop="name">
+          <ElInput placeholder="请输入内容" clearable />
+        </ElFormItem>
+        <ElFormItem label="用户名:" prop="userName">
+          <el-input placeholder="请输入内容" clearable />
+        </ElFormItem>
+        <ElFormItem label="密　码:" prop="password">
+          <el-input placeholder="请输入内容" clearable show-password />
+        </ElFormItem>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="dialogVisible = false">确定</el-button>
+        </span>
+      </template>
+    </ElDialog>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -130,13 +124,11 @@ import {
   ElInput,
   FormRules
 } from 'element-plus'
-import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, onMounted } from 'vue'
-import { formatTime } from '@/utils'
 // import { EChartsOption } from 'echarts'
 // import { radarOption } from './echarts-data'
-import { getCountApi, getDynamicApi } from '@/api/dashboard/workplace'
-import type { WorkplaceTotal, Project, Dynamic } from '@/api/dashboard/workplace/types'
+// import { getCountApi, getDynamicApi } from '@/api/dashboard/workplace'
+// import type { WorkplaceTotal, Project, Dynamic } from '@/api/dashboard/workplace/types'
 // import { set } from 'lodash-es'
 // import { radarOption } from '../Dashboard/echarts-data'
 // import AMap from '@amap/amap-jsapi-loader'
@@ -177,52 +169,53 @@ onMounted(() => {
       if (status === 'complete') {
         city.value = result.city
         console.log('城市查询成功：', city.value)
-        getWeather()
+        getWeather(city.value)
       } else {
         console.log('城市查询失败：', result)
       }
     })
   })
 })
-
-function getWeather() {
+//查询天气
+function getWeather(city) {
   axios
     .get(
-      `https://restapi.amap.com/v3/weather/weatherInfo?city=${city.value}&key=0c51b8a0df1215976f3e9c65add89c0a`
+      `https://restapi.amap.com/v3/weather/weatherInfo?city=${city}&key=0c51b8a0df1215976f3e9c65add89c0a`
     )
     .then((res) => {
       weather.value = res.data.lives
       console.log(weather.value, '天气')
+      loading.value = false
     })
 }
 
 const loading = ref(true)
 
 // 获取统计数
-let totalSate = reactive<WorkplaceTotal>({
-  project: 0,
-  access: 0,
-  todo: 0
-})
+// let totalSate = reactive<WorkplaceTotal>({
+//   project: 0,
+//   access: 0,
+//   todo: 0
+// })
 
-const getCount = async () => {
-  const res = await getCountApi().catch(() => {})
-  if (res) {
-    totalSate = Object.assign(totalSate, res.data)
-  }
-}
+// const getCount = async () => {
+//   const res = await getCountApi().catch(() => {})
+//   if (res) {
+//     totalSate = Object.assign(totalSate, res.data)
+//   }
+// }
 
-let projects = reactive<Project[]>([])
+// let projects = reactive<Project[]>([])
 
 // 获取动态
-let dynamics = reactive<Dynamic[]>([])
+// let dynamics = reactive<Dynamic[]>([])
 
-const getDynamic = async () => {
-  const res = await getDynamicApi().catch(() => {})
-  if (res) {
-    dynamics = Object.assign(dynamics, res.data)
-  }
-}
+// const getDynamic = async () => {
+//   const res = await getDynamicApi().catch(() => {})
+//   if (res) {
+//     dynamics = Object.assign(dynamics, res.data)
+//   }
+// }
 
 // 获取指数
 // let radarOptionData = reactive<EChartsOption>(radarOption) as EChartsOption
@@ -259,12 +252,10 @@ const getDynamic = async () => {
 //   }
 // }
 
-const getAllApi = async () => {
-  await Promise.all([getCount(), getDynamic()])
-  loading.value = false
-}
+// const getAllApi = async () => {
+//   await Promise.all([getCount(), getDynamic()])
+//   loading.value = false
+// }
 
-getAllApi()
-// getWeather()
-const { t } = useI18n()
+// getAllApi()
 </script>

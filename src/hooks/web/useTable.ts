@@ -160,8 +160,8 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
       console.log(res, 'ssssss')
       tableObject.tableList = res.data.data.list || {}
       tableObject.total = res.data.data.total || {}
-      console.log(tableObject.tableList, '333333')
-      console.log(tableObject.total, '444444444')
+      // console.log(tableObject.tableList, '333333')
+      // console.log(tableObject.total, '444444444')
 
       // tableObject.total=
     },
