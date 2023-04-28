@@ -73,8 +73,8 @@
       <ElTableColumn property="status" label="资产维修状态" align="center">
         <template #default="{ row }">
           <div v-if="row.state">
-            <ElTag v-if="row.state == 0">未完成</ElTag>
-            <ElTag type="success" v-if="row.state == 1">已完成</ElTag>
+            <ElTag v-if="row.state == 'true'">未完成</ElTag>
+            <ElTag type="success" v-if="row.state == 'false'">已完成</ElTag>
           </div>
         </template>
       </ElTableColumn>
@@ -180,12 +180,7 @@
         </ElRadioGroup>
       </ElFormItem>
       <ElFormItem label="资产维修状态" prop="state">
-        <ElSwitch
-          v-model="state2"
-          @click="switch_state(dialogValue.state)"
-          v-if="dialogValue.state == 0"
-        />
-        <ElSwitch v-model="state1" @click="switch_state(dialogValue.state)" v-else />
+        <ElSwitch v-model="dialogValue.state" @click="switch_state(dialogValue.state)" />
       </ElFormItem>
       <ElFormItem label="备注更多信息" prop="assetsData">
         <el-input v-model="dialogValue.assetsData" type="textarea" />
@@ -243,8 +238,7 @@ import qrcode from 'qrcode'
 // import axios from 'axios'
 import { getProperty, AddProperty, deleteProperty, EditProperty } from '@/api/PropertyPatrol'
 const loading = ref(false)
-const state1 = ref(false)
-const state2 = ref(true)
+
 const options = [
   {
     value: '0',
@@ -277,8 +271,7 @@ const queryTable = reactive<{
 
 const rules = reactive<FormRules>({
   assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
-  // assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }],
-  assetsType: [{ required: true, message: '请输入资产类型', trigger: 'blur' }]
+  assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }]
 })
 const dialogValueRef = ref<FormInstance>()
 // import axios from 'axios'
@@ -350,26 +343,55 @@ const Add = async (dialogValueRef) => {
 
 //修改
 const Edit = (dialogValue) => {
-  // const res = await axios.put(
-  //   `http://127.0.0.1:8088/Assets/update?id=${dialogValue.id}&state=${dialogValue.state}&assetsType=${dialogValue.assetsType}`
-  // )
-  EditProperty(dialogValue.id, dialogValue).then((res) => {
+  EditProperty(dialogValue).then((res) => {
     if (res) {
       ElMessage.success('编辑成功')
     } else {
       ElMessage.warning('编辑失败')
     }
+    getData()
   })
-  getData()
   dialogVisible.value = false
+  // getData()
+}
+
+//删除
+const delData = (delId: number) => {
+  console.log(delId, 'id')
+
+  ElMessageBox.confirm('该操作将删除该条数据, 是否继续？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    deleteProperty({ id: delId }).then((res) => {
+      if (res) {
+        ElMessage.success('删除成功！')
+        getData()
+      } else {
+        ElMessage.error('删除失败！')
+      }
+    })
+  })
+  // tableObject.currentRow = row
+  // const { delList, getSelections } = methods
+  // const selections = await getSelections()
+  // delLoading.value = true
+  // await delList(
+  //   multiple ? selections.map((v) => v.id) : [tableObject.currentRow?.id as string],
+  //   multiple
+  // ).finally(() => {
+  //   delLoading.value = false
+  // })
   getData()
 }
+
 //修改switch状态
 const switch_state = (state) => {
-  if (state == 0) {
-    dialogValue.value.state = '1'
+  if (state == 'true') {
+    dialogValue.value.state = 'false'
   } else {
-    dialogValue.value.state = '0'
+    dialogValue.value.state = 'true'
   }
 }
 
@@ -573,37 +595,6 @@ const dialogValue = ref()
 // }
 //删除
 // const delLoading = ref(false)
-
-//删除
-const delData = (id: number) => {
-  console.log(id, 'id')
-
-  ElMessageBox.confirm('该操作将删除该条数据, 是否继续？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    deleteProperty(id).then((res) => {
-      if (res) {
-        ElMessage.success('删除成功！')
-        getData()
-      } else {
-        ElMessage.error('删除失败！')
-      }
-    })
-  })
-  // tableObject.currentRow = row
-  // const { delList, getSelections } = methods
-  // const selections = await getSelections()
-  // delLoading.value = true
-  // await delList(
-  //   multiple ? selections.map((v) => v.id) : [tableObject.currentRow?.id as string],
-  //   multiple
-  // ).finally(() => {
-  //   delLoading.value = false
-  // })
-  getData()
-}
 
 //编辑&新增
 const actionType = ref('')
