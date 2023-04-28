@@ -34,7 +34,7 @@
             </ElSelect>
           </ElFormItem>
           <ElFormItem>
-            <ElButton type="primary" class="w-60px" @click="getList()">
+            <ElButton type="primary" class="w-60px" @click="getData()">
               <Icon icon="ep:search" class="mr-3px" />
               查询
             </ElButton>
@@ -59,8 +59,8 @@
       v-model:currentPage="queryTable.pageNum"
       :data="tableData"
       v-loading="loading"
-      @register="register"
     >
+      <!-- @register="register" -->
       <!-- <template #empty>
         <el-empty description="description" />
       </template> -->
@@ -229,7 +229,8 @@ import {
   ElSwitch,
   ElMessage,
   ElOption,
-  ElSelect
+  ElSelect,
+  ElMessageBox
 } from 'element-plus'
 // import { Table } from '@/components/Table'
 // import { getTableListApi, delTableListApi } from '@/api/table'
@@ -239,8 +240,8 @@ import { ref, reactive, onMounted, watch } from 'vue'
 // import Write from './components/Write.vue'
 // import Detail from './components/Detail.vue'
 import qrcode from 'qrcode'
-import axios from 'axios'
-import { getProperty, AddProperty, deleteProperty } from '@/api/PropertyPatrol'
+// import axios from 'axios'
+import { getProperty, AddProperty, deleteProperty, EditProperty } from '@/api/PropertyPatrol'
 const loading = ref(false)
 const state1 = ref(false)
 const state2 = ref(true)
@@ -321,7 +322,7 @@ watch(
 watch(
   () => queryTable.pageSize,
   () => {
-    // 当前页不为1时，修改页数后会导致多次调用getList方法
+    // 当前页不为1时，修改页数后会导致多次调用getData方法
     if (queryTable.pageNum === 1) {
       getData()
     } else {
@@ -332,7 +333,7 @@ watch(
 )
 
 //新增
-const Add = async () => {
+const Add = async (dialogValueRef) => {
   // const res = await axios.post(
   //   `http://127.0.0.1:8088/Assets/update?assetsName=${dialogValueRef.value.assetsName}&state=${dialogValueRef.value.state}&assetsType=${dialogValue.value.assetsType}`
   // )
@@ -348,15 +349,17 @@ const Add = async () => {
 }
 
 //修改
-const Edit = async (dialogValue) => {
-  const res = await axios.put(
-    `http://127.0.0.1:8088/Assets/update?id=${dialogValue.id}&state=${dialogValue.state}&assetsType=${dialogValue.assetsType}`
-  )
-  if (res) {
-    ElMessage.success('编辑成功')
-  } else {
-    ElMessage.warning('编辑失败')
-  }
+const Edit = (dialogValue) => {
+  // const res = await axios.put(
+  //   `http://127.0.0.1:8088/Assets/update?id=${dialogValue.id}&state=${dialogValue.state}&assetsType=${dialogValue.assetsType}`
+  // )
+  EditProperty(dialogValue.id, dialogValue).then((res) => {
+    if (res) {
+      ElMessage.success('编辑成功')
+    } else {
+      ElMessage.warning('编辑失败')
+    }
+  })
   getData()
   dialogVisible.value = false
   getData()
@@ -570,10 +573,25 @@ const dialogValue = ref()
 // }
 //删除
 // const delLoading = ref(false)
-const delData = async (id) => {
-  console.log(id)
-  deleteProperty(id)
 
+//删除
+const delData = (id: number) => {
+  console.log(id, 'id')
+
+  ElMessageBox.confirm('该操作将删除该条数据, 是否继续？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    deleteProperty(id).then((res) => {
+      if (res) {
+        ElMessage.success('删除成功！')
+        getData()
+      } else {
+        ElMessage.error('删除失败！')
+      }
+    })
+  })
   // tableObject.currentRow = row
   // const { delList, getSelections } = methods
   // const selections = await getSelections()
@@ -584,6 +602,7 @@ const delData = async (id) => {
   // ).finally(() => {
   //   delLoading.value = false
   // })
+  getData()
 }
 
 //编辑&新增
@@ -617,7 +636,9 @@ const action = (row, type: string) => {
 
 onMounted(() => {
   getData()
-  Add()
+  // Add()
+  // Edit(dialogValue)
+  // delData(id)
 })
 </script>
 <style>
