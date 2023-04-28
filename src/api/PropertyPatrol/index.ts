@@ -7,9 +7,9 @@ export const getProperty = (params: any) => {
 export const AddProperty = (data: any) => {
   return request.post({ url: '/Assets/update', data })
 }
-export const deleteProperty = (id) => {
-  return request.get({ url: '/Assets/deleteById', id })
+export const deleteProperty = (params: any) => {
+  return request.get({ url: '/Assets/deleteById', params })
 }
-export const EditProperty = (id: number, data: any) => {
-  return request.put({ url: `/Assets/update/${id}`, data })
+export const EditProperty = (params: any) => {
+  return request.put({ url: '/Assets/update', params })
 }
