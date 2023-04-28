@@ -180,7 +180,7 @@
         </ElRadioGroup>
       </ElFormItem>
       <ElFormItem label="资产维修状态" prop="state">
-        <ElSwitch v-model="dialogValue.state" @click="switch_state(dialogValue.state)" />
+        <ElSwitch v-model="dialogValue.state" />
       </ElFormItem>
       <ElFormItem label="备注更多信息" prop="assetsData">
         <el-input v-model="dialogValue.assetsData" type="textarea" />
@@ -387,13 +387,13 @@ const delData = (delId: number) => {
 }
 
 //修改switch状态
-const switch_state = (state) => {
-  if (state == 'true') {
-    dialogValue.value.state = 'false'
-  } else {
-    dialogValue.value.state = 'true'
-  }
-}
+// const switch_state = (state) => {
+//   if (state == 'true') {
+//     dialogValue.state = 'false'
+//   } else {
+//     dialogValue.state = 'true'
+//   }
+// }
 
 //分页查询
 const handleSizeChange = (val: Number) => {
@@ -586,7 +586,20 @@ const getQrcode = (row) => {
 // const { allSchemas } = useCrudSchemas(crudSchemas)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const dialogValue = ref()
+const dialogValue = reactive<{
+  assetsCode: any
+  assetsName: any
+  assetsType: any
+  state: any
+  assetsData: any
+}>({
+  assetsCode: null,
+  // createTime: null,
+  assetsName: null,
+  assetsType: null,
+  state: null,
+  assetsData: null
+})
 // const AddAction = () => {
 //   dialogTitle.value = t('exampleDemo.add')
 //   tableObject.currentRow = null
@@ -601,8 +614,24 @@ const actionType = ref('')
 const action = (row, type: string) => {
   dialogTitle.value = type === 'edit' ? '编辑资产' : '登记资产'
   actionType.value = type
-  dialogValue.value = row
   dialogVisible.value = true
+  try {
+    if (row.state === 'true') {
+      dialogValue.state = true
+    } else {
+      dialogValue.state = false
+    }
+    dialogValue.assetsCode = row.assetsCode
+    dialogValue.assetsName = row.assetsName
+    dialogValue.assetsType = row.assetsType
+    dialogValue.assetsData = row.assetsData
+  } catch (error) {
+    dialogValue.assetsCode = ''
+    dialogValue.assetsName = ''
+    dialogValue.assetsType = ''
+    dialogValue.assetsData = ''
+    dialogValue.state = ''
+  }
 }
 // const writeRef = ref<ComponentRef<typeof Write>>()
 // const save = async () => {
