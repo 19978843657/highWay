@@ -108,18 +108,3 @@ export function toAnyString() {
   })
   return str
 }
-
-export function isBlank(value: any) {
-  return value === null || value === ''
-}
-
-export function filterParam(param: object | undefined) {
-  const obj = {}
-  param &&
-    Object.keys(param).forEach((item) => {
-      if ((Array.isArray(param[item]) && param[item].length) || !isBlank(param[item])) {
-        obj[item] = param[item]
-      }
-    })
-  return obj
-}

@@ -327,9 +327,6 @@ watch(
 
 //新增
 const Add = async (dialogValueRef) => {
-  // const res = await axios.post(
-  //   `http://127.0.0.1:8088/Assets/update?assetsName=${dialogValueRef.value.assetsName}&state=${dialogValueRef.value.state}&assetsType=${dialogValue.value.assetsType}`
-  // )
   AddProperty(dialogValueRef).then((res) => {
     if (res) {
       ElMessage.success('登记成功')
@@ -339,6 +336,7 @@ const Add = async (dialogValueRef) => {
   })
   getData()
   dialogVisible.value = false
+  getData()
 }
 
 //修改
@@ -587,17 +585,19 @@ const getQrcode = (row) => {
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const dialogValue = reactive<{
+  id: any
   assetsCode: any
   assetsName: any
   assetsType: any
   state: any
   assetsData: any
 }>({
+  id: null,
   assetsCode: null,
   // createTime: null,
   assetsName: null,
   assetsType: null,
-  state: null,
+  state: 'false',
   assetsData: null
 })
 // const AddAction = () => {
@@ -621,6 +621,7 @@ const action = (row, type: string) => {
     } else {
       dialogValue.state = false
     }
+    dialogValue.id = row.id
     dialogValue.assetsCode = row.assetsCode
     dialogValue.assetsName = row.assetsName
     dialogValue.assetsType = row.assetsType
