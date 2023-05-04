@@ -42,16 +42,6 @@
         </el-form>
       </div>
     </div>
-    <!-- <div class="mb-10px">
-      <ElButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</ElButton>
-      <ElButton :loading="delLoading" type="danger" @click="delData(null, true)">
-        {{ t('exampleDemo.del') }}
-      </ElButton>
-    </div> -->
-    <!-- :columns="allSchemas.tableColumns" -->
-    <!-- :pagination="{
-        total: tableObject.total
-      }" -->
 
     <!-- 表格 -->
     <ElTable
@@ -60,10 +50,6 @@
       :data="tableData"
       v-loading="loading"
     >
-      <!-- @register="register" -->
-      <!-- <template #empty>
-        <el-empty description="description" />
-      </template> -->
       <ElTableColumn type="selection" />
       <ElTableColumn type="index" label="序号" align="center" width="55" />
       <ElTableColumn property="assetsCode" label="资产编号" align="center" />
@@ -118,10 +104,6 @@
   </ContentWrap>
   <!-- 弹窗 -->
   <Dialog v-model="dialogVisible" :title="dialogTitle">
-    <!-- <Write v-if="actionType !== 'detail'" ref="writeRef" :current-row="tableObject.currentRow" /> -->
-    <!-- :form-schema="allSchemas.formSchema" -->
-    <!-- <Detail v-if="actionType === 'detail'" :current-row="tableObject.currentRow" /> -->
-    <!-- :detail-schema="allSchemas.detailSchema" -->
     <el-form
       ref="dialogValueRef"
       :model="dialogValue"
@@ -136,13 +118,9 @@
       <ElFormItem label="资产名称" prop="assetsName">
         <ElInput v-model="dialogValue.assetsName" />
       </ElFormItem>
-      <!-- <ElFormItem label="资产负责人" prop="count">
-        <el-select-v2
-          v-model="dialogValue.userId"
-          placeholder="Activity count"
-          :options="$options"
-        />
-      </ElFormItem> -->
+      <ElFormItem label="资产负责人" prop="userId">
+        <ElInput v-model="dialogValue.userId" />
+      </ElFormItem>
 
       <!-- <ElFormItem label="时间 time" required>
         <el-col :span="11">
@@ -205,7 +183,6 @@
 
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
-// import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
 import {
   ElButton,
@@ -227,15 +204,8 @@ import {
   ElSelect,
   ElMessageBox
 } from 'element-plus'
-// import { Table } from '@/components/Table'
-// import { getTableListApi, delTableListApi } from '@/api/table'
-// import { useTable } from '@/hooks/web/useTable'
-// import { TableData } from '@/api/table/types'
 import { ref, reactive, onMounted, watch } from 'vue'
-// import Write from './components/Write.vue'
-// import Detail from './components/Detail.vue'
 import qrcode from 'qrcode'
-// import axios from 'axios'
 import { getProperty, AddProperty, deleteProperty, EditProperty } from '@/api/PropertyPatrol'
 const loading = ref(false)
 
@@ -269,28 +239,30 @@ const queryTable = reactive<{
   pageSize: 5
 })
 
+const dialogValue = reactive<{
+  id: any
+  assetsCode: any
+  assetsName: any
+  assetsType: any
+  state: any
+  assetsData: any
+  userId: any
+}>({
+  id: null,
+  assetsCode: null,
+  // createTime: null,
+  assetsName: null,
+  assetsType: null,
+  state: 'false',
+  assetsData: null,
+  userId: null
+})
+
 const rules = reactive<FormRules>({
   assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
   assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }]
 })
 const dialogValueRef = ref<FormInstance>()
-// import axios from 'axios'
-// import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-// import { TableColumn } from '@/types/table'
-// const Tabel_loading = ref(true)
-// const { register, tableObject, methods } = useTable<TableData>({
-//   getListApi: getTableListApi,
-//   delListApi: delTableListApi,
-//   response: {
-//     list: 'list',
-//     total: 'total'
-//   },
-//   defaultParams: {
-//     title: 's'
-//   }
-// })
-// const { getList } = methods
-// getList()
 
 //查询获取数据
 const getData = () => {
@@ -319,7 +291,7 @@ watch(
     if (queryTable.pageNum === 1) {
       getData()
     } else {
-      queryTable.pageSize = 1
+      queryTable.pageNum = 1
       getData()
     }
   }
@@ -333,10 +305,10 @@ const Add = async (dialogValueRef) => {
     } else {
       ElMessage.warning('登记失败')
     }
+    getData()
   })
-  getData()
   dialogVisible.value = false
-  getData()
+  // getData()
 }
 
 //修改
@@ -371,27 +343,8 @@ const delData = (delId: number) => {
       }
     })
   })
-  // tableObject.currentRow = row
-  // const { delList, getSelections } = methods
-  // const selections = await getSelections()
-  // delLoading.value = true
-  // await delList(
-  //   multiple ? selections.map((v) => v.id) : [tableObject.currentRow?.id as string],
-  //   multiple
-  // ).finally(() => {
-  //   delLoading.value = false
-  // })
   getData()
 }
-
-//修改switch状态
-// const switch_state = (state) => {
-//   if (state == 'true') {
-//     dialogValue.state = 'false'
-//   } else {
-//     dialogValue.state = 'true'
-//   }
-// }
 
 //分页查询
 const handleSizeChange = (val: Number) => {
@@ -422,192 +375,8 @@ const getQrcode = (row) => {
   return img ? img : ''
 }
 
-// const propertyData = ref()
-// const pageQuery = reactive<any>({
-//   // 页数
-//   pageSize: 10,
-//   // 当前页
-//   currentPage: 1,
-//   // 总条数
-//   total: 10
-// })
-
-// const getProperty = async () => {
-//   // propertyData.value.loading = true
-//   const res = await axios.get(
-//     `http://127.0.0.1:8088/Assets/selectPageInfo?pageSize=${pageQuery.pageSize}&pageNum=${pageQuery.currentPage}`
-//   )
-//   // .finally(() => {
-//   //   propertyData.value.loading = false
-//   // })
-//   console.log(res, '55555555')
-//   propertyData.value = res.data.data.list
-//   console.log(propertyData.value, 'hahahahaha')
-// }
-// getProperty()
-
-// const queryTable = reactive<{}>
-
-// const end_time = ref('')
-// if (condition) {
-
-// }
-// const crudSchemas = reactive<CrudSchema[]>([
-//   {
-//     field: 'id',
-//     label: t('tableDemo.index'),
-//     type: 'index',
-//     form: {
-//       show: false
-//     },
-//     detail: {
-//       show: false
-//     }
-//   },
-//   {
-//     field: 'assetsName',
-//     label: '资产名称',
-//     search: {
-//       show: true
-//     },
-//     form: {
-//       colProps: {
-//         span: 24
-//       }
-//     },
-//     detail: {
-//       span: 24
-//     }
-//   },
-//   {
-//     field: 'assetsCode',
-//     label: '资产编号'
-//   },
-//   {
-//     field: 'createTime',
-//     label: '资产维护时间',
-//     form: {
-//       component: 'DatePicker',
-//       componentProps: {
-//         type: 'datetime',
-//         valueFormat: 'YYYY-MM-DD HH:mm:ss'
-//       }
-//     }
-//   },
-//   {
-//     field: 'finishTime',
-//     label: '检修完成时间',
-//     form: {
-//       component: 'DatePicker',
-//       componentProps: {
-//         type: 'datetime',
-//         valueFormat: 'YYYY-MM-DD HH:mm:ss'
-//       }
-//     }
-//   }
-//   // {
-//   //   field: 'importance',
-//   //   label: t('tableDemo.importance'),
-//   //   formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-//   //     return h(
-//   //       ElTag,
-//   //       {
-//   //         type: cellValue === 1 ? 'success' : cellValue === 2 ? 'warning' : 'danger'
-//   //       },
-//   //       () =>
-//   //         cellValue === 1
-//   //           ? t('tableDemo.important')
-//   //           : cellValue === 2
-//   //           ? t('tableDemo.good')
-//   //           : t('tableDemo.commonly')
-//   //     )
-//   //   },
-//   //   form: {
-//   //     component: 'Select',
-//   //     componentProps: {
-//   //       style: {
-//   //         width: '100%'
-//   //       },
-//   //       options: [
-//   //         {
-//   //           label: '重要',
-//   //           value: 3
-//   //         },
-//   //         {
-//   //           label: '良好',
-//   //           value: 2
-//   //         },
-//   //         {
-//   //           label: '一般',
-//   //           value: 1
-//   //         }
-//   //       ]
-//   //     }
-//   //   }
-//   // },
-//   // {
-//   //   field: 'pageviews',
-//   //   label: t('tableDemo.pageviews'),
-//   //   form: {
-//   //     component: 'InputNumber',
-//   //     value: 0
-//   //   }
-//   // },
-//   // {
-//   //   field: 'content',
-//   //   label: t('exampleDemo.content'),
-//   //   table: {
-//   //     show: false
-//   //   },
-//   //   form: {
-//   //     component: 'Editor',
-//   //     colProps: {
-//   //       span: 24
-//   //     }
-//   //   },
-//   //   detail: {
-//   //     span: 24
-//   //   }
-//   // },
-//   // {
-//   //   field: 'action',
-//   //   width: '260px',
-//   //   label: t('tableDemo.action'),
-//   //   form: {
-//   //     show: false
-//   //   },
-//   //   detail: {
-//   //     show: false
-//   //   }
-//   // }
-// ])
-// const { allSchemas } = useCrudSchemas(crudSchemas)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const dialogValue = reactive<{
-  id: any
-  assetsCode: any
-  assetsName: any
-  assetsType: any
-  state: any
-  assetsData: any
-}>({
-  id: null,
-  assetsCode: null,
-  // createTime: null,
-  assetsName: null,
-  assetsType: null,
-  state: 'false',
-  assetsData: null
-})
-// const AddAction = () => {
-//   dialogTitle.value = t('exampleDemo.add')
-//   tableObject.currentRow = null
-//   dialogVisible.value = true
-//   actionType.value = ''
-// }
-//删除
-// const delLoading = ref(false)
 
 //编辑&新增
 const actionType = ref('')
@@ -626,40 +395,19 @@ const action = (row, type: string) => {
     dialogValue.assetsName = row.assetsName
     dialogValue.assetsType = row.assetsType
     dialogValue.assetsData = row.assetsData
+    dialogValue.userId = row.userId
   } catch (error) {
     dialogValue.assetsCode = ''
     dialogValue.assetsName = ''
     dialogValue.assetsType = ''
     dialogValue.assetsData = ''
     dialogValue.state = ''
+    dialogValue.userId = ''
   }
 }
-// const writeRef = ref<ComponentRef<typeof Write>>()
-// const save = async () => {
-//   const write = unref(writeRef)
-//   await write?.elFormRef?.validate(async (isValid) => {
-//     if (isValid) {
-//       loading.value = true
-//       const data = (await write?.getFormData()) as TableData
-//       const res = await saveTableApi(data)
-//         .catch(() => {})
-//         .finally(() => {
-//           loading.value = false
-//         })
-//       if (res) {
-//         dialogVisible.value = false
-//         tableObject.currentPage = 1
-//         getList()
-//       }
-//     }
-//   })
-// }
 
 onMounted(() => {
   getData()
-  // Add()
-  // Edit(dialogValue)
-  // delData(id)
 })
 </script>
 <style>
