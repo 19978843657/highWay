@@ -106,27 +106,35 @@
         <ElInput v-model="dialogValue.data" />
       </ElFormItem>
 
-      <el-form-item label="Activity time">
-        <ElCol :span="11">
-          <ElTimePicker
+      <el-form-item label="巡查时间">
+        <el-col :span="11">
+          <ElDatePicker
             v-model="dialogValue.startTime"
-            type="date"
+            format="YYYY-MM-DD HH:mm:ss"
+            type="datetime"
             placeholder="开始时间"
             style="width: 100%"
           />
-        </ElCol>
-        <el-col :span="2" class="text-center">
-          <span class="text-gray-500">-</span>
         </el-col>
         <el-col :span="11">
-          <el-time-picker
+          <el-date-picker
             v-model="dialogValue.endTime"
+            format="YYYY-MM-DD HH:mm:ss"
+            type="datetime"
             placeholder="结束时间"
+            timezone="GMT+8"
             style="width: 100%"
           />
         </el-col>
       </el-form-item>
 
+      <ElFormItem label="巡查状态" prop="state">
+        <ElRadioGroup v-model="dialogValue.state">
+          <ElRadio label="0">未开始</ElRadio>
+          <ElRadio label="1">进行中</ElRadio>
+          <ElRadio label="2">已结束</ElRadio>
+        </ElRadioGroup>
+      </ElFormItem>
       <ElFormItem label="排班类型" prop="type">
         <ElSelect v-model="dialogValue.type" placeholder="排班类型查询" width="15" clearable>
           <ElOption
@@ -136,13 +144,6 @@
             :value="item.value"
           />
         </ElSelect>
-      </ElFormItem>
-      <ElFormItem label="巡查状态" prop="state">
-        <ElRadioGroup v-model="dialogValue.state">
-          <ElRadio label="0">未开始</ElRadio>
-          <ElRadio label="1">进行中</ElRadio>
-          <ElRadio label="2">已结束</ElRadio>
-        </ElRadioGroup>
       </ElFormItem>
       <ElFormItem label="备注更多信息" prop="remark">
         <el-input v-model="dialogValue.remark" type="textarea" />
@@ -185,7 +186,7 @@ import {
   ElOption,
   ElSelect,
   ElMessageBox,
-  ElTimePicker,
+  ElDatePicker,
   ElCol
 } from 'element-plus'
 import { ref, reactive, onMounted, watch } from 'vue'
@@ -305,6 +306,8 @@ const action = (row, type: string) => {
     dialogValue.remark = row.remark
     dialogValue.data = row.data
     dialogValue.state = row.state
+    dialogValue.startTime = row.startTime
+    dialogValue.endTime = row.endTime
   } catch (error) {
     dialogValue.type = ''
     dialogValue.remark = ''
