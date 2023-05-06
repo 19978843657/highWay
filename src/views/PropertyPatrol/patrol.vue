@@ -8,18 +8,16 @@
     <!-- <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" /> -->
     <div class="flex justify-between">
       <div>
-        <ElButton>新增巡查</ElButton>
+        <ElButton @click="action('', 'add')" type="primary">新增巡查</ElButton>
       </div>
       <div>
-        <el-form :inline="true" label-width="30px">
+        <el-form :inline="true" :model="queryTable" label-width="30px">
           <ElFormItem class="query-form-item">
-            <ElInput placeholder="人员编号查询" clearable />
+            <ElInput v-model="queryTable.userId" placeholder="人员ID查询" clearable />
           </ElFormItem>
+
           <ElFormItem class="query-form-item">
-            <ElInput placeholder="资产名称查询" clearable />
-          </ElFormItem>
-          <ElFormItem class="query-form-item">
-            <ElSelect placeholder="资产维修状态查询" width="15" clearable>
+            <ElSelect v-model="queryTable.type" placeholder="排班类型查询" width="15" clearable>
               <ElOption
                 v-for="item in options"
                 :key="item.value"
@@ -29,7 +27,7 @@
             </ElSelect>
           </ElFormItem>
           <ElFormItem>
-            <ElButton type="primary" class="w-60px">
+            <ElButton type="primary" class="w-60px" @click="getData()">
               <Icon icon="ep:search" class="mr-3px" />
               查询
             </ElButton>
@@ -42,9 +40,9 @@
       v-loading="loading"
       v-model:pageSize="queryTable.pageSize"
       v-model:currentPage="queryTable.pageNum"
-      :data="TableData"
+      :data="tableData"
     >
-      <ElTableColumn type="selection" />
+      <!-- <ElTableColumn type="selection" /> -->
       <ElTableColumn type="index" label="序号" align="center" width="55" />
       <ElTableColumn property="userId" label="巡查人员ID" align="center" />
       <!-- <ElTableColumn property="assetsName" label="巡警名称" align="center" /> -->
@@ -58,19 +56,24 @@
           </div>
         </template>
       </ElTableColumn>
-      <ElTableColumn property="startTime" label="巡查开始时间" align="center" width="110" />
+      <ElTableColumn property="startTime" label="巡查开始时间" align="center" width="110">
+        <template #default="{ row }">
+          <span v-if="row.startTime">{{ row.startTime }}</span>
+          <span v-else style="color: rgb(201 201 201)">巡查未开始</span>
+        </template>
+      </ElTableColumn>
       <ElTableColumn property="endTime" label="巡查结束时间" align="center" width="110">
         <template #default="{ row }">
           <span v-if="row.endTime">{{ row.endTime }}</span>
-          <span v-else style="color: rgb(201 201 201)">巡查还未结束</span>
+          <span v-else style="color: rgb(201 201 201)">结束时间暂无</span>
         </template>
       </ElTableColumn>
       <ElTableColumn property="type" label="排班类型" align="center" />
       <ElTableColumn label="操作" align="center">
-        <!-- <template #default="{ row }">
-          <Icon icon="ei:pencil" color="#90bb27" class="icon" />
-          <Icon icon="ei:trash" color="#f56c6c" class="icon" />
-        </template> -->
+        <template #default="{ row }">
+          <Icon icon="ei:pencil" color="#90bb27" @click="action(row, 'edit')" class="icon" />
+          <Icon icon="ei:trash" color="#f56c6c" @click="delData(row.id)" class="icon" />
+        </template>
       </ElTableColumn>
     </ElTable>
     <ElPagination
@@ -79,16 +82,15 @@
       layout=" prev, pager, next,sizes,total"
       v-model:currentPage="queryTable.pageNum"
       v-model:page-size="queryTable.pageSize"
-      :page-sizes="[5, 10, 20, 50, 100]"
+      :page-sizes="[5, 8, 10, 20, 50, 100]"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :total="queryTable.total"
+      :total="total"
       class="pagination"
     />
   </ContentWrap>
 
-  <!-- <Dialog v-model="dialogVisible" :title="dialogTitle">
-
+  <ElDialog v-model="dialogVisible" :title="dialogTitle">
     <el-form
       ref="dialogValueRef"
       :model="dialogValue"
@@ -97,32 +99,54 @@
       class="demo-dialogValue"
       status-icon
     >
-      <ElFormItem label="资产编号" prop="assetsCode">
-        <ElInput v-model="dialogValue.assetsCode" />
+      <ElFormItem label="巡查人员id" prop="userId">
+        <ElInput v-model="dialogValue.userId" />
       </ElFormItem>
-      <ElFormItem label="资产名称" prop="assetsName">
-        <ElInput v-model="dialogValue.assetsName" />
+      <ElFormItem label="巡查信息" prop="data">
+        <ElInput v-model="dialogValue.data" />
       </ElFormItem>
-     
 
-      <ElFormItem label="资产类型" prop="assetsType">
-        <ElRadioGroup v-model="dialogValue.assetsType">
-          <ElRadio label="IT设备" />
-          <ElRadio label="设备维修" />
-          <ElRadio label="安全设备" />
-          <ElRadio label="财务" />
+      <el-form-item label="巡查时间">
+        <el-col :span="11">
+          <ElDatePicker
+            v-model="dialogValue.startTime"
+            format="YYYY-MM-DD HH:mm:ss"
+            type="datetime"
+            placeholder="开始时间"
+            style="width: 100%"
+          />
+        </el-col>
+        <el-col :span="11">
+          <el-date-picker
+            v-model="dialogValue.endTime"
+            format="YYYY-MM-DD HH:mm:ss"
+            type="datetime"
+            placeholder="结束时间"
+            timezone="GMT+8"
+            style="width: 100%"
+          />
+        </el-col>
+      </el-form-item>
+
+      <ElFormItem label="巡查状态" prop="state">
+        <ElRadioGroup v-model="dialogValue.state">
+          <ElRadio label="0">未开始</ElRadio>
+          <ElRadio label="1">进行中</ElRadio>
+          <ElRadio label="2">已结束</ElRadio>
         </ElRadioGroup>
       </ElFormItem>
-      <ElFormItem label="资产维修状态" prop="state">
-        <ElSwitch
-          v-model="state2"
-          @click="switch_state(dialogValue.state)"
-          v-if="dialogValue.state == 0"
-        />
-        <ElSwitch v-model="state1" @click="switch_state(dialogValue.state)" v-else />
+      <ElFormItem label="排班类型" prop="type">
+        <ElSelect v-model="dialogValue.type" placeholder="排班类型查询" width="15" clearable>
+          <ElOption
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </ElSelect>
       </ElFormItem>
-      <ElFormItem label="备注更多信息" prop="assetsData">
-        <el-input v-model="dialogValue.assetsData" type="textarea" />
+      <ElFormItem label="备注更多信息" prop="remark">
+        <el-input v-model="dialogValue.remark" type="textarea" />
       </ElFormItem>
     </el-form>
     <template #footer>
@@ -139,67 +163,96 @@
       </ElButton>
       <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
-  </Dialog> -->
+  </ElDialog>
 </template>
 <script setup lang="ts">
+import { AddPatrol, deletePatrol, EditPatrol, getPatrol } from '@/api/PropertyPatrol'
 import { ContentWrap } from '@/components/ContentWrap'
-// import { Search } from '@/components/Search'
-// import { Dialog } from '@/components/Dialog'
 import {
   ElButton,
+  ElDialog,
   ElTableColumn,
   ElTable,
   ElTag,
+  ElPagination,
   ElForm,
   ElInput,
+  FormInstance,
+  FormRules,
   ElFormItem,
+  ElRadioGroup,
+  ElRadio,
+  ElMessage,
   ElOption,
   ElSelect,
-  ElPagination
+  ElMessageBox,
+  ElDatePicker,
+  ElCol
 } from 'element-plus'
-import { ref, reactive, watch } from 'vue'
-// import qrcode from 'qrcode'
-import axios from 'axios'
-// const state1 = ref(false)
-// const state2 = ref(true)
+import { ref, reactive, onMounted, watch } from 'vue'
+const dialogVisible = ref(false)
+const dialogValueRef = ref<FormInstance>()
+const dialogTitle = ref('')
 const loading = ref(true)
-const TableData = ref([])
 const options = [
   {
-    value: '0',
-    label: '未完成'
+    value: '早班',
+    label: '早班'
   },
   {
-    value: '1',
-    label: '已完成'
+    value: '晚班',
+    label: '晚班'
   }
 ]
+const total = ref(0)
+const tableData = ref([])
 const queryTable = reactive<{
   pageSize: number
   pageNum: number
-  total: number
-  startTime: string
-  endTime: string
-  type: string
-  remark: string
-  state: string
-  data: string
+  startTime: any
+  endTime: any
+  type: any
+  remark: any
+  state: any
+  data: any
+  userId: any
 }>({
   pageSize: 5,
   pageNum: 1,
-  total: 10,
-  startTime: '',
-  endTime: '',
-  type: '',
-  remark: '',
-  state: '',
-  data: ''
+  startTime: null,
+  endTime: null,
+  type: null,
+  remark: null,
+  state: null,
+  data: null,
+  userId: null
 })
-// const rules = reactive<FormRules>({
-//   assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
-//   // assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }],
-//   assetsType: [{ required: true, message: '请输入资产类型', trigger: 'blur' }]
-// })
+
+const dialogValue = reactive<{
+  id: any
+  startTime: any
+  endTime: any
+  type: any
+  state: any
+  userId: any
+  remark: any
+  data: any
+}>({
+  id: null,
+  startTime: null,
+  endTime: null,
+  type: null,
+  state: null,
+  userId: null,
+  remark: null,
+  data: null
+})
+const actionType = ref('')
+
+const rules = reactive<FormRules>({
+  userId: [{ required: true, message: '请输入巡查人员ID', trigger: 'blur' }],
+  data: [{ required: true, message: '请输入巡查信息', trigger: 'blur' }]
+})
 //分页查询
 const handleSizeChange = (val: Number) => {
   console.log(`${val} items per page`)
@@ -210,38 +263,112 @@ const handleCurrentChange = (val: number) => {
 watch(
   () => queryTable.pageNum,
   () => {
-    getTable()
+    getData()
   }
 )
 
 watch(
   () => queryTable.pageSize,
   () => {
-    // 当前页不为1时，修改页数后会导致多次调用getTable方法
+    // 当前页不为1时，修改页数后会导致多次调用getData方法
     if (queryTable.pageNum === 1) {
-      getTable()
+      getData()
     } else {
       queryTable.pageNum = 1
-      getTable()
+      getData()
     }
   }
 )
 
-//获取数据
-const getTable = async () => {
-  const res = await axios
-    .get(
-      `http://127.0.0.1:8088/Schedule/selectPageInfo?pageSize=${queryTable.pageSize}&pageNum=${queryTable.pageNum}`
-    )
+//查询获取数据
+const getData = () => {
+  loading.value = true
+  getPatrol(queryTable)
+    .then((res) => {
+      tableData.value = res.data.list || {}
+      total.value = res.data.total || 0
+    })
     .finally(() => {
       loading.value = false
     })
-  console.log(res, 'ssss')
-  TableData.value = res.data.data.list || {}
-  queryTable.total = res.data.data.total || {}
-  console.log(TableData.value, 'aaa')
 }
-getTable()
+
+//编辑&新增
+const action = (row, type: string) => {
+  dialogTitle.value = type === 'edit' ? '编辑资产' : '登记资产'
+  actionType.value = type
+  dialogVisible.value = true
+  try {
+    dialogValue.id = row.id
+    dialogValue.type = row.type
+    dialogValue.state = row.state
+    dialogValue.userId = row.userId
+    dialogValue.remark = row.remark
+    dialogValue.data = row.data
+    dialogValue.state = row.state
+    dialogValue.startTime = row.startTime
+    dialogValue.endTime = row.endTime
+  } catch (error) {
+    dialogValue.type = ''
+    dialogValue.remark = ''
+    dialogValue.data = ''
+    dialogValue.state = ''
+    dialogValue.userId = ''
+  }
+}
+
+//新增
+const Add = async (dialogValueRef) => {
+  AddPatrol(dialogValueRef).then((res) => {
+    if (res) {
+      ElMessage.success('登记成功')
+    } else {
+      ElMessage.warning('登记失败')
+    }
+    getData()
+  })
+  dialogVisible.value = false
+  // getData()
+}
+
+//修改
+const Edit = (dialogValue) => {
+  EditPatrol(dialogValue).then((res) => {
+    if (res) {
+      ElMessage.success('编辑成功')
+    } else {
+      ElMessage.warning('编辑失败')
+    }
+    getData()
+  })
+  dialogVisible.value = false
+  // getData()
+}
+
+//删除
+const delData = (delId: number) => {
+  console.log(delId, 'id')
+
+  ElMessageBox.confirm('该操作将删除该条数据, 是否继续？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    deletePatrol({ id: delId }).then((res) => {
+      if (res) {
+        ElMessage.success('删除成功！')
+        getData()
+      } else {
+        ElMessage.error('删除失败！')
+      }
+    })
+  })
+  getData()
+}
+
+onMounted(() => {
+  getData()
+})
 </script>
 
 <style>
