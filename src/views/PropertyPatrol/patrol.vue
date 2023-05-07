@@ -124,7 +124,6 @@
             value-format="YYYY-MM-DD HH:mm:ss"
             type="datetime"
             placeholder="结束时间"
-            timezone="GMT+8"
             style="width: 100%"
           />
         </el-col>
