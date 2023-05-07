@@ -111,6 +111,7 @@
           <ElDatePicker
             v-model="dialogValue.startTime"
             format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
             type="datetime"
             placeholder="开始时间"
             style="width: 100%"
@@ -120,6 +121,7 @@
           <el-date-picker
             v-model="dialogValue.endTime"
             format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
             type="datetime"
             placeholder="结束时间"
             timezone="GMT+8"
