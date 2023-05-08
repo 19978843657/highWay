@@ -160,7 +160,7 @@
         保存修改
       </ElButton>
       <ElButton v-else type="primary" @click="Add(dialogValue)" :loading="loading">
-        新增资产
+        新增排班
       </ElButton>
       <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
@@ -296,7 +296,7 @@ const getData = () => {
 
 //编辑&新增
 const action = (row, type: string) => {
-  dialogTitle.value = type === 'edit' ? '编辑资产' : '登记资产'
+  dialogTitle.value = type === 'edit' ? '编辑排班' : '新增排班'
   actionType.value = type
   dialogVisible.value = true
   try {
