@@ -111,6 +111,7 @@
           <ElDatePicker
             v-model="dialogValue.startTime"
             format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
             type="datetime"
             placeholder="开始时间"
             style="width: 100%"
@@ -120,9 +121,9 @@
           <el-date-picker
             v-model="dialogValue.endTime"
             format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
             type="datetime"
             placeholder="结束时间"
-            timezone="GMT+8"
             style="width: 100%"
           />
         </el-col>
@@ -159,7 +160,7 @@
         保存修改
       </ElButton>
       <ElButton v-else type="primary" @click="Add(dialogValue)" :loading="loading">
-        新增资产
+        新增排班
       </ElButton>
       <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
@@ -295,7 +296,7 @@ const getData = () => {
 
 //编辑&新增
 const action = (row, type: string) => {
-  dialogTitle.value = type === 'edit' ? '编辑资产' : '登记资产'
+  dialogTitle.value = type === 'edit' ? '编辑排班' : '新增排班'
   actionType.value = type
   dialogVisible.value = true
   try {

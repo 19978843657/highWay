@@ -8,18 +8,21 @@
     <!-- <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" /> -->
     <div class="flex justify-between">
       <div>
-        <ElButton>新增用户</ElButton>
+        <ElButton @click="action('', 'add')" type="primary">新增用户</ElButton>
       </div>
       <div>
-        <el-form :inline="true" label-width="30px">
+        <el-form :inline="true" label-width="20px">
           <ElFormItem class="query-form-item">
-            <ElInput placeholder="资产编号查询" clearable />
+            <ElInput v-model="queryTable.id" placeholder="用户ID查询" clearable />
           </ElFormItem>
           <ElFormItem class="query-form-item">
-            <ElInput placeholder="资产名称查询" clearable />
+            <ElInput v-model="queryTable.nickName" placeholder="用户名查询" clearable />
           </ElFormItem>
           <ElFormItem class="query-form-item">
-            <ElSelect placeholder="资产维修状态查询" width="15" clearable>
+            <ElInput v-model="queryTable.userName" placeholder="姓名" clearable />
+          </ElFormItem>
+          <ElFormItem class="query-form-item">
+            <ElSelect v-model="queryTable.role" placeholder="用户角色" width="15" clearable>
               <ElOption
                 v-for="item in options"
                 :key="item.value"
@@ -29,7 +32,7 @@
             </ElSelect>
           </ElFormItem>
           <ElFormItem>
-            <ElButton type="primary" class="w-60px">
+            <ElButton type="primary" class="w-60px" @click="getData()">
               <Icon icon="ep:search" class="mr-3px" />
               查询
             </ElButton>
@@ -42,12 +45,11 @@
       v-loading="loading"
       v-model:pageSize="queryTable.pageSize"
       v-model:currentPage="queryTable.pageNum"
-      :data="TableData"
+      :data="tableData"
     >
       <ElTableColumn type="selection" />
       <ElTableColumn type="index" label="序号" align="center" width="55" />
       <ElTableColumn property="id" label="用户ID" align="center" />
-      <!-- <ElTableColumn property="assetsName" label="巡警名称" align="center" /> -->
       <ElTableColumn property="userName" label="姓名" align="center" />
       <ElTableColumn property="nickName" label="用户名" align="center" />
       <ElTableColumn property="password" label="密码" align="center" />
@@ -60,17 +62,13 @@
         </template>
       </ElTableColumn>
       <ElTableColumn property="phone" label="用户手机" align="center" />
-      <ElTableColumn property="addres" label="用户住址" align="center" width="110">
-        <!-- <template #default="{ row }">
-          <ElTag type="info">{{ row.addres }}</ElTag>
-        </template> -->
-      </ElTableColumn>
+      <ElTableColumn property="addres" label="用户住址" align="center" width="110" />
       <ElTableColumn property="createTime" label="用户创建时间" align="center" width="110" />
       <ElTableColumn label="操作" align="center">
-        <!-- <template #default="{ row }">
-          <Icon icon="ei:pencil" color="#90bb27" class="icon" />
-          <Icon icon="ei:trash" color="#f56c6c" class="icon" />
-        </template> -->
+        <template #default="{ row }">
+          <Icon icon="ei:pencil" color="#90bb27" @click="action(row, 'edit')" class="icon" />
+          <Icon icon="ei:trash" color="#f56c6c" @click="delData(row.id)" class="icon" />
+        </template>
       </ElTableColumn>
     </ElTable>
     <ElPagination
@@ -82,13 +80,11 @@
       :page-sizes="[5, 10, 20, 50, 100]"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :total="queryTable.total"
+      :total="total"
       class="pagination"
     />
   </ContentWrap>
-
-  <!-- <Dialog v-model="dialogVisible" :title="dialogTitle">
-
+  <ElDialog v-model="dialogVisible" :title="dialogTitle">
     <el-form
       ref="dialogValueRef"
       :model="dialogValue"
@@ -97,32 +93,29 @@
       class="demo-dialogValue"
       status-icon
     >
-      <ElFormItem label="资产编号" prop="assetsCode">
-        <ElInput v-model="dialogValue.assetsCode" />
+      <!-- <ElFormItem label="用户ID" prop="id">
+        <ElInput v-model="dialogValue.id" />
+      </ElFormItem> -->
+      <ElFormItem label="姓名" prop="userName">
+        <ElInput v-model="dialogValue.userName" />
       </ElFormItem>
-      <ElFormItem label="资产名称" prop="assetsName">
-        <ElInput v-model="dialogValue.assetsName" />
+      <ElFormItem label="用户名" prop="nickName">
+        <ElInput v-model="dialogValue.nickName" />
       </ElFormItem>
-     
-
-      <ElFormItem label="资产类型" prop="assetsType">
-        <ElRadioGroup v-model="dialogValue.assetsType">
-          <ElRadio label="IT设备" />
-          <ElRadio label="设备维修" />
-          <ElRadio label="安全设备" />
-          <ElRadio label="财务" />
+      <ElFormItem label="密码" prop="password">
+        <ElInput v-model="dialogValue.password" />
+      </ElFormItem>
+      <ElFormItem label="手机" prop="phone">
+        <ElInput v-model="dialogValue.phone" />
+      </ElFormItem>
+      <ElFormItem label="用户角色" prop="role">
+        <ElRadioGroup v-model="dialogValue.role">
+          <ElRadio label="普通用户">普通用户</ElRadio>
+          <ElRadio label="管理员">管理员</ElRadio>
         </ElRadioGroup>
       </ElFormItem>
-      <ElFormItem label="资产维修状态" prop="state">
-        <ElSwitch
-          v-model="state2"
-          @click="switch_state(dialogValue.state)"
-          v-if="dialogValue.state == 0"
-        />
-        <ElSwitch v-model="state1" @click="switch_state(dialogValue.state)" v-else />
-      </ElFormItem>
-      <ElFormItem label="备注更多信息" prop="assetsData">
-        <el-input v-model="dialogValue.assetsData" type="textarea" />
+      <ElFormItem label="用户地址(只用填写市、区)" prop="addres">
+        <el-input v-model="dialogValue.addres" type="textarea" />
       </ElFormItem>
     </el-form>
     <template #footer>
@@ -135,77 +128,177 @@
         保存修改
       </ElButton>
       <ElButton v-else type="primary" @click="Add(dialogValue)" :loading="loading">
-        新增资产
+        新增用户
       </ElButton>
       <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
-  </Dialog> -->
+  </ElDialog>
 </template>
 <script setup lang="ts">
 import { ContentWrap } from '@/components/ContentWrap'
-// import { Search } from '@/components/Search'
-// import { Dialog } from '@/components/Dialog'
 import {
   ElButton,
   ElTableColumn,
   ElTable,
   ElTag,
+  ElPagination,
   ElForm,
   ElInput,
+  FormInstance,
+  FormRules,
   ElFormItem,
+  ElMessage,
   ElOption,
   ElSelect,
-  ElPagination
+  ElMessageBox,
+  ElDialog,
+  ElRadioGroup,
+  ElRadio
 } from 'element-plus'
-import { ref, reactive, watch } from 'vue'
-// import qrcode from 'qrcode'
-import axios from 'axios'
-// const state1 = ref(false)
-// const state2 = ref(true)
-const loading = ref(true)
-const TableData = ref([])
+import { ref, reactive, onMounted, watch } from 'vue'
+import { getUser, AddUser, deleteUser, EditUser } from '@/api/Authorization'
+const loading = ref(false)
+
 const options = [
   {
-    value: '0',
-    label: '未完成'
+    value: '普通用户',
+    label: '普通用户'
   },
   {
-    value: '1',
-    label: '已完成'
+    value: '管理员',
+    label: '管理员'
   }
 ]
+const total = ref(0)
+const tableData = ref([])
 const queryTable = reactive<{
-  pageSize: number
+  id: any
+  nickName: any
+  password: any
+  phone: any
+  userName: any
+  role: any
+  createTime: null
   pageNum: number
-  total: number
-  id: string
-  postId: string
-  userName: string
-  nickName: string
-  password: string
-  phone: string
-  addres: string
-  createTime: string
-  role: string
+  pageSize: number
 }>({
-  pageSize: 5,
+  id: null,
+  nickName: null,
+  password: null,
+  phone: null,
+  userName: null,
+  role: null,
+  createTime: null,
   pageNum: 1,
-  total: 10,
-  id: '',
-  postId: '',
-  userName: '',
-  nickName: '',
-  password: '',
-  phone: '',
-  addres: '',
-  createTime: '',
-  role: ''
+  pageSize: 5
 })
-// const rules = reactive<FormRules>({
-//   assetsCode: [{ required: true, message: '请输入资产编号', trigger: 'blur' }],
-//   // assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }],
-//   assetsType: [{ required: true, message: '请输入资产类型', trigger: 'blur' }]
-// })
+
+const dialogValue = reactive<{
+  id: any
+  nickName: any
+  password: any
+  phone: any
+  userName: any
+  role: any
+  addres: any
+}>({
+  id: null,
+  nickName: null,
+  password: null,
+  phone: null,
+  userName: null,
+  role: null,
+  addres: null
+})
+const dialogVisible = ref(false)
+const dialogTitle = ref('')
+
+const rules = reactive<FormRules>({
+  userName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }]
+})
+const dialogValueRef = ref<FormInstance>()
+
+//查询获取数据
+const getData = () => {
+  loading.value = true
+  getUser(queryTable)
+    .then((res) => {
+      tableData.value = res.data.list || {}
+      total.value = res.data.total || 0
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+watch(
+  () => queryTable.pageNum,
+  () => {
+    getData()
+  }
+)
+
+watch(
+  () => queryTable.pageSize,
+  () => {
+    // 当前页不为1时，修改页数后会导致多次调用getData方法
+    if (queryTable.pageNum === 1) {
+      getData()
+    } else {
+      queryTable.pageNum = 1
+      getData()
+    }
+  }
+)
+
+//新增
+const Add = async (dialogValueRef) => {
+  AddUser(dialogValueRef).then((res) => {
+    if (res) {
+      ElMessage.success('登记成功')
+    } else {
+      ElMessage.warning('登记失败')
+    }
+    getData()
+  })
+  dialogVisible.value = false
+}
+
+//修改
+const Edit = (dialogValue) => {
+  EditUser(dialogValue).then((res) => {
+    if (res) {
+      ElMessage.success('编辑成功')
+    } else {
+      ElMessage.warning('编辑失败')
+    }
+    getData()
+  })
+  dialogVisible.value = false
+}
+
+//删除
+const delData = (delId: number) => {
+  console.log(delId, 'id')
+
+  ElMessageBox.confirm('该操作将删除该条数据, 是否继续？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    deleteUser({ id: delId }).then((res) => {
+      if (res) {
+        ElMessage.success('删除成功！')
+        getData()
+      } else {
+        ElMessage.error('删除失败！')
+      }
+    })
+  })
+  getData()
+}
+
 //分页查询
 const handleSizeChange = (val: Number) => {
   console.log(`${val} items per page`)
@@ -213,41 +306,35 @@ const handleSizeChange = (val: Number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`)
 }
-watch(
-  () => queryTable.pageNum,
-  () => {
-    getTable()
-  }
-)
 
-watch(
-  () => queryTable.pageSize,
-  () => {
-    // 当前页不为1时，修改页数后会导致多次调用getTable方法
-    if (queryTable.pageNum === 1) {
-      getTable()
-    } else {
-      queryTable.pageNum = 1
-      getTable()
-    }
+//编辑&新增
+const actionType = ref('')
+const action = (row, type: string) => {
+  dialogTitle.value = type === 'edit' ? '编辑用户信息' : '登记用户'
+  actionType.value = type
+  dialogVisible.value = true
+  try {
+    dialogValue.id = row.id
+    dialogValue.nickName = row.nickName
+    dialogValue.password = row.password
+    dialogValue.phone = row.phone
+    dialogValue.userName = row.userName
+    dialogValue.role = row.role
+    dialogValue.addres = row.addres
+  } catch (error) {
+    dialogValue.id = ''
+    dialogValue.nickName = ''
+    dialogValue.password = ''
+    dialogValue.phone = ''
+    dialogValue.userName = ''
+    dialogValue.role = ''
+    dialogValue.addres = ''
   }
-)
-
-//获取数据
-const getTable = async () => {
-  const res = await axios
-    .get(
-      `http://127.0.0.1:8088/User/selectPageInfo?pageSize=${queryTable.pageSize}&pageNum=${queryTable.pageNum}`
-    )
-    .finally(() => {
-      loading.value = false
-    })
-  console.log(res, 'ssss')
-  TableData.value = res.data.data.list || {}
-  queryTable.total = res.data.data.total || {}
-  console.log(TableData.value, 'aaa')
 }
-getTable()
+
+onMounted(() => {
+  getData()
+})
 </script>
 
 <style>

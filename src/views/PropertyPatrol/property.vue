@@ -4,8 +4,6 @@
     :title="'资产管理'"
     :message="'高速公路的资产管理，展示资产编号、名称、类型、负责人等信息，可以扫描二维码查看详细信息。'"
   >
-    <!-- :schema="allSchemas.searchSchema" -->
-    <!-- <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" /> -->
     <div class="flex justify-between" id="add_search">
       <div>
         <ElButton @click="action('', 'add')" type="primary">登记资产</ElButton>
@@ -250,7 +248,6 @@ const dialogValue = reactive<{
 }>({
   id: null,
   assetsCode: null,
-  // createTime: null,
   assetsName: null,
   assetsType: null,
   state: 'false',
