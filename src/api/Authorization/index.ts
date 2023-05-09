@@ -4,6 +4,11 @@ import request from '@/config/axios'
 export const getUser = (params: any) => {
   return request.get({ url: '/User/selectPageInfo', params })
 }
+
+export const getAllUser = (params: any) => {
+  return request.get({ url: '/User/selectAll', params })
+}
+
 export const AddUser = (data: any) => {
   return request.post({ url: '/User/insert', data })
 }
