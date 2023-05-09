@@ -100,8 +100,16 @@
       status-icon
     >
       <ElFormItem label="巡查人员id" prop="userId">
-        <ElInput v-model="dialogValue.userId" />
+        <el-select v-model="dialogValue.userId" placeholder="请选择员工" filterable clearable>
+          <el-option
+            v-for="item in toRaw(userList)"
+            :key="item"
+            :label="item.id + ',' + item.userName"
+            :value="item.id + ',' + item.userName"
+          />
+        </el-select>
       </ElFormItem>
+
       <ElFormItem label="巡查信息" prop="data">
         <ElInput v-model="dialogValue.data" />
       </ElFormItem>
@@ -168,6 +176,7 @@
 </template>
 <script setup lang="ts">
 import { AddPatrol, deletePatrol, EditPatrol, getPatrol } from '@/api/PropertyPatrol'
+import { getAllUser } from '@/api/Authorization'
 import { ContentWrap } from '@/components/ContentWrap'
 import {
   ElButton,
@@ -190,7 +199,7 @@ import {
   ElDatePicker,
   ElCol
 } from 'element-plus'
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch, toRaw } from 'vue'
 const dialogVisible = ref(false)
 const dialogValueRef = ref<FormInstance>()
 const dialogTitle = ref('')
@@ -208,8 +217,8 @@ const options = [
 const total = ref(0)
 const tableData = ref([])
 const queryTable = reactive<{
-  pageSize: number
-  pageNum: number
+  pageSize: any
+  pageNum: any
   startTime: any
   endTime: any
   type: any
@@ -227,6 +236,15 @@ const queryTable = reactive<{
   state: null,
   data: null,
   userId: null
+})
+interface User {
+  userId: string
+  codeName: string
+}
+const userList = ref<User>()
+getAllUser({}).then((res) => {
+  userList.value = res.data || {}
+  console.log(res.data, 'data')
 })
 
 const dialogValue = reactive<{
