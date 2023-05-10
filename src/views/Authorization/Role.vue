@@ -47,25 +47,29 @@
               <span>快速跳转</span>
             </div>
           </template>
-          <ElSkeleton :loading="loading" animated>
-            <ElRow>
-              <!-- v-for="(item, index) in projects"
-              :key="`card-${index}`" -->
-              <ElCol :xl="8" :lg="8" :md="12" :sm="24" :xs="24">
-                <ElCard shadow="hover">
-                  <div class="flex items-center">
-                    <Icon :size="25" class="mr-10px" />
-                    <span class="text-16px"></span>
-                  </div>
-                  <div class="mt-15px text-14px text-gray-400"></div>
-                  <div class="mt-20px text-12px text-gray-400 flex justify-between">
-                    <span></span>
-                    <span></span>
-                  </div>
-                </ElCard>
-              </ElCol>
-            </ElRow>
-          </ElSkeleton>
+
+          <ElRow :gutter="10">
+            <RouterLink to="/dashboard/analysis"
+              ><ElButton style="margin-right: 10px">首页</ElButton></RouterLink
+            >
+            <RouterLink to="/components/trafficCase"
+              ><ElButton style="margin-right: 10px">交通事故案件页面</ElButton></RouterLink
+            >
+            <RouterLink to="/components/trafficCase"
+              ><ElButton style="margin-right: 10px">公路违章案件页面</ElButton></RouterLink
+            >
+
+            <RouterLink to="/road/property"
+              ><ElButton style="margin-right: 10px">公路资产页面</ElButton></RouterLink
+            >
+
+            <RouterLink to="/road/patrol"><ElButton>巡查排班页面</ElButton></RouterLink>
+          </ElRow>
+
+          <!-- <br />
+          <ElCol>ssss</ElCol>
+          <br />
+          <ElCol>ssss</ElCol> -->
         </ElCard>
       </ElCol>
       <ElCol :xl="8" :lg="8" :md="24" :sm="24" :xs="24" class="mb-20px">
@@ -79,14 +83,24 @@
           <hr />
           <br />
           <ElSkeleton :loading="loading" animated>
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">姓　名:</ElCol>
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">用户名:</ElCol>
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
+              >姓　名: {{ queryTable.userName }}</ElCol
+            >
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
+              >用户名: {{ queryTable.nickName }}</ElCol
+            >
             <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">密　码:</ElCol>
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">权　限:</ElCol>
+            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
+              >权　限: {{ queryTable.role }}</ElCol
+            >
+            <ElCol :xl="24" :lg="24" :md="24" :sm="24" :xs="24" class="mb-10px"
+              >时　间: {{ queryTable.createTime }}</ElCol
+            >
           </ElSkeleton>
         </ElCard>
       </ElCol>
     </ElRow>
+
     <ElDialog v-model="dialogVisible" title="个人信息编辑" width="30%" draggable>
       <el-form :rules="rules">
         <ElFormItem label="姓　名:" prop="name">
@@ -148,6 +162,35 @@ const Edit = () => {
 //   })
 // }
 // test()
+
+// 个人信息
+
+const userInfo: any = JSON.parse(sessionStorage.getItem('userInfo')) //字符串转换格式
+console.log(userInfo)
+
+//个人详细信息
+const userObj = JSON.parse(userInfo.v)
+console.log(userObj.userName, 'val')
+
+const queryTable = reactive<{
+  id: any
+  nickName: any
+  password: any
+  phone: any
+  userName: any
+  role: any
+  createTime: null
+}>({
+  id: userObj.id,
+  nickName: userObj.nickName,
+  password: userObj.password,
+  phone: userObj.phone,
+  userName: userObj.userName,
+  role: userObj.role,
+  createTime: userObj.createTime
+})
+
+console.log(queryTable, 'quer')
 
 const options = {
   key: '0c51b8a0df1215976f3e9c65add89c0a',
