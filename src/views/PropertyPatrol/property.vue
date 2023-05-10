@@ -75,12 +75,12 @@
             <template #reference>
               <img :src="getQrcode(row)" alt="" />
             </template>
-            <img :src="getQrcode(row)" alt="" />
           </ElPopover>
         </template>
       </ElTableColumn>
       <ElTableColumn label="操作" align="center">
         <template #default="{ row }">
+          <Icon icon="ic:twotone-print" color="#1769aa" @click="Print(row)" class="icon" />
           <Icon icon="ei:pencil" color="#90bb27" @click="action(row, 'edit')" class="icon" />
           <Icon icon="ei:trash" color="#f56c6c" @click="delData(row.id)" class="icon" />
         </template>
@@ -177,6 +177,8 @@
       <ElButton @click="dialogVisible = false">关闭弹窗</ElButton>
     </template>
   </Dialog>
+
+  <PrintData :pVisible="pVisible" :pData="pData" />
 </template>
 
 <script setup lang="ts">
@@ -204,6 +206,7 @@ import {
 } from 'element-plus'
 import { ref, reactive, onMounted, watch } from 'vue'
 import qrcode from 'qrcode'
+import PrintData from '@/PrintData.vue'
 import { getProperty, AddProperty, deleteProperty, EditProperty } from '@/api/PropertyPatrol'
 const loading = ref(false)
 
@@ -260,6 +263,19 @@ const rules = reactive<FormRules>({
   assetsName: [{ required: true, message: '请输入资产名称', trigger: 'blur' }]
 })
 const dialogValueRef = ref<FormInstance>()
+const pData = ref([])
+const pVisible = ref(false)
+
+//打印
+const Print = (row) => {
+  ElMessageBox.confirm('确定要打印此条数据吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    pData.value = row
+  })
+}
 
 //查询获取数据
 const getData = () => {
@@ -324,8 +340,6 @@ const Edit = (dialogValue) => {
 
 //删除
 const delData = (delId: number) => {
-  console.log(delId, 'id')
-
   ElMessageBox.confirm('该操作将删除该条数据, 是否继续？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -409,12 +423,12 @@ onMounted(() => {
 </script>
 <style>
 .icon {
-  margin-left: 10px !important;
-  margin-right: 8px !important;
+  margin-left: 11px !important;
+  margin-right: 5px !important;
 }
 .icon span {
   margin-top: 15px !important;
-  font-size: 30px !important;
+  font-size: 28px !important;
 }
 .pagination {
   margin-top: 15px;
