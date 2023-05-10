@@ -4,8 +4,6 @@
     :title="'用户管理'"
     :message="'高速公路的资产管理，展示资产编号、名称、类型、负责人等信息，可以扫描二维码查看详细信息。'"
   >
-    <!-- :schema="allSchemas.searchSchema" -->
-    <!-- <Search :model="queryTable" @search="setSearchParams" @reset="setSearchParams" /> -->
     <div class="flex justify-between">
       <div>
         <ElButton @click="action('', 'add')" type="primary">新增用户</ElButton>
@@ -61,6 +59,13 @@
           </div>
         </template>
       </ElTableColumn>
+      <ElTableColumn property="image" label="用户头像" align="center">
+        <template #default="{ row }">
+          <div v-if="row.image">
+            <ElAvatar :size="45" :src="row.image" shape="square" fit="cover" />
+          </div>
+        </template>
+      </ElTableColumn>
       <ElTableColumn property="phone" label="用户手机" align="center" />
       <ElTableColumn property="addres" label="用户住址" align="center" width="110" />
       <ElTableColumn property="createTime" label="用户创建时间" align="center" width="110" />
@@ -94,7 +99,7 @@
       status-icon
     >
       <ElRow>
-        <ElCol :span="12">
+        <ElCol :span="22">
           <el-upload
             ref="upload"
             class="upload-demo"
@@ -115,13 +120,12 @@
           </el-upload>
         </ElCol>
 
-        <ElCol :span="4">
+        <ElCol :span="1">
           <div class="block">
             <ElAvatar :size="50" :src="dialogValue.image" shape="square" fit="cover" />
           </div>
         </ElCol>
       </ElRow>
->>>>>>> 06fc9de8a8665e926ffff6bc461488c3d26f7850
       <ElFormItem label="姓名" prop="userName">
         <ElInput v-model="dialogValue.userName" />
       </ElFormItem>
@@ -200,7 +204,7 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 const handleUploadSuccess = (response: any) => {
   console.log(response.data)
   dialogValue.image = response.data
-  EditUser(dialogValue).then((res) => {
+  EditUser(dialogValue).then(() => {
     getData()
   })
 }
@@ -214,7 +218,7 @@ const state = reactive({
   circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
   squareUrl: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png'
 })
->>>>>>> 06fc9de8a8665e926ffff6bc461488c3d26f7850
+
 const loading = ref(false)
 
 const options = [

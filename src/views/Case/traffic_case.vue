@@ -1,4 +1,4 @@
-//交通事故
+//公路违章
 <template>
   <ContentWrap
     :title="'巡查排版'"
@@ -51,6 +51,7 @@
       <ElTableColumn type="index" label="序号" align="center" width="55" />
       <ElTableColumn property="id" label="案件ID" align="center" />
       <ElTableColumn property="caseName" label="案件名" align="center" />
+      <ElTableColumn property="caseType" label="案件类型" align="center" />
       <ElTableColumn property="user" label="处理人" align="center" />
       <ElTableColumn property="state" label="案件状态" align="center">
         <template #default="{ row }">
@@ -108,6 +109,12 @@
         <ElRadioGroup v-model="dialogValue.state">
           <ElRadio label="0">处理中</ElRadio>
           <ElRadio label="1">已结束</ElRadio>
+        </ElRadioGroup>
+      </ElFormItem>
+      <ElFormItem label="案件类型" prop="caseType">
+        <ElRadioGroup v-model="dialogValue.caseType">
+          <ElRadio label="违章">违章</ElRadio>
+          <ElRadio label="事故">事故</ElRadio>
         </ElRadioGroup>
       </ElFormItem>
       <el-form-item label="案件时间">
@@ -170,7 +177,8 @@ import {
   ElMessageBox,
   ElDialog,
   ElRadioGroup,
-  ElRadio
+  ElRadio,
+  ElDatePicker
 } from 'element-plus'
 import { ref, reactive, watch, onMounted } from 'vue'
 import { getCase, AddCase, deleteCase, EditCase } from '@/api/Case'
@@ -188,6 +196,7 @@ const options = [
 ]
 const total = ref(0)
 const tableData = ref([])
+const AllData = ref([])
 const queryTable = reactive<{
   pageSize: number
   pageNum: number
@@ -211,6 +220,7 @@ const dialogValue = reactive<{
   data: any
   user: any
   state: any
+  caseType: any
 }>({
   id: null,
   caseName: null,
@@ -218,7 +228,8 @@ const dialogValue = reactive<{
   finishTime: null,
   data: null,
   user: null,
-  state: null
+  state: null,
+  caseType: null
 })
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
@@ -239,7 +250,6 @@ watch(
     getData()
   }
 )
-
 watch(
   () => queryTable.pageSize,
   () => {
@@ -258,8 +268,9 @@ const getData = () => {
   loading.value = true
   getCase(queryTable)
     .then((res) => {
-      tableData.value = res.data.list || {}
+      AllData.value = res.data.list || {}
       total.value = res.data.total || 0
+      tableData.value = AllData.value.filter((item: any) => item.caseType == '事故')
     })
     .finally(() => {
       loading.value = false
@@ -324,6 +335,7 @@ const action = (row, type: string) => {
     dialogValue.data = row.data
     dialogValue.user = row.user
     dialogValue.state = row.state
+    dialogValue.caseType = row.caseType
   } catch (error) {
     dialogValue.id = ''
     dialogValue.caseName = ''
@@ -332,6 +344,7 @@ const action = (row, type: string) => {
     dialogValue.data = ''
     dialogValue.user = ''
     dialogValue.state = ''
+    dialogValue.caseType = ''
   }
 }
 

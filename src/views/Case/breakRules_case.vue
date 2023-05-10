@@ -51,6 +51,7 @@
       <ElTableColumn type="index" label="序号" align="center" width="55" />
       <ElTableColumn property="id" label="案件ID" align="center" />
       <ElTableColumn property="caseName" label="案件名" align="center" />
+      <ElTableColumn property="caseType" label="案件类型" align="center" />
       <ElTableColumn property="user" label="处理人" align="center" />
       <ElTableColumn property="state" label="案件状态" align="center">
         <template #default="{ row }">
@@ -189,6 +190,7 @@ const options = [
 ]
 const total = ref(0)
 const tableData = ref([])
+const AllData = ref([])
 const queryTable = reactive<{
   pageSize: number
   pageNum: number
@@ -240,7 +242,6 @@ watch(
     getData()
   }
 )
-
 watch(
   () => queryTable.pageSize,
   () => {
@@ -259,8 +260,9 @@ const getData = () => {
   loading.value = true
   getCase(queryTable)
     .then((res) => {
-      tableData.value = res.data.list || {}
+      AllData.value = res.data.list || {}
       total.value = res.data.total || 0
+      tableData.value = AllData.value.filter((item: any) => item.caseType == '违章')
     })
     .finally(() => {
       loading.value = false
