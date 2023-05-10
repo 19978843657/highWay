@@ -93,6 +93,35 @@
       class="demo-dialogValue"
       status-icon
     >
+      <ElRow>
+        <ElCol :span="12">
+          <el-upload
+            ref="upload"
+            class="upload-demo"
+            :action="uploadUrl"
+            :limit="1"
+            :on-exceed="handleExceed"
+            :auto-upload="false"
+            accept=".jpg,.png"
+            :on-success="handleUploadSuccess"
+          >
+            <template #trigger>
+              <el-button type="primary">选择头像</el-button>
+            </template>
+            <el-button class="ml-3" type="success" @click="submitUpload"> 更新头像 </el-button>
+            <template #tip>
+              <div class="el-upload__tip text-red"> 新头像替换旧头像 </div>
+            </template>
+          </el-upload>
+        </ElCol>
+
+        <ElCol :span="4">
+          <div class="block">
+            <ElAvatar :size="50" :src="dialogValue.image" shape="square" fit="cover" />
+          </div>
+        </ElCol>
+      </ElRow>
+>>>>>>> 06fc9de8a8665e926ffff6bc461488c3d26f7850
       <ElFormItem label="姓名" prop="userName">
         <ElInput v-model="dialogValue.userName" />
       </ElFormItem>
@@ -150,11 +179,42 @@ import {
   ElMessageBox,
   ElDialog,
   ElRadioGroup,
-  ElRadio
+  ElRadio,
+  ElAvatar,
+  ElUpload,
+  ElRow,
+  ElCol
 } from 'element-plus'
 import { ref, reactive, onMounted, watch } from 'vue'
 import { getUser, AddUser, deleteUser, EditUser } from '@/api/Authorization'
+import type { UploadProps, UploadInstance, UploadRawFile } from 'element-plus'
+const uploadUrl = ref('http://127.0.0.1:8088/File/UploadFile')
+console.log(uploadUrl)
+const upload = ref<UploadInstance | null>()
 
+const handleExceed: UploadProps['onExceed'] = (files) => {
+  upload.value!.clearFiles()
+  const file = files[0] as UploadRawFile
+  upload.value!.handleStart(file)
+}
+const handleUploadSuccess = (response: any) => {
+  console.log(response.data)
+  dialogValue.image = response.data
+  EditUser(dialogValue).then((res) => {
+    getData()
+  })
+}
+const submitUpload = () => {
+  if (upload.value) {
+    upload.value.submit()
+  }
+  console.log(upload, 'upload')
+}
+const state = reactive({
+  circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+  squareUrl: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png'
+})
+>>>>>>> 06fc9de8a8665e926ffff6bc461488c3d26f7850
 const loading = ref(false)
 
 const options = [
@@ -199,6 +259,7 @@ const dialogValue = reactive<{
   userName: any
   role: any
   addres: any
+  image: any
 }>({
   id: null,
   nickName: null,
@@ -206,7 +267,8 @@ const dialogValue = reactive<{
   phone: null,
   userName: null,
   role: null,
-  addres: null
+  addres: null,
+  image: state.squareUrl
 })
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
@@ -308,10 +370,12 @@ const handleCurrentChange = (val: number) => {
 //编辑&新增
 const actionType = ref('')
 const action = (row, type: string) => {
+  console.log(row, 'row')
+
   dialogTitle.value = type === 'edit' ? '编辑用户信息' : '登记用户'
   actionType.value = type
   dialogVisible.value = true
-  try {
+  if (type === 'edit') {
     dialogValue.id = row.id
     dialogValue.nickName = row.nickName
     dialogValue.password = row.password
@@ -319,7 +383,8 @@ const action = (row, type: string) => {
     dialogValue.userName = row.userName
     dialogValue.role = row.role
     dialogValue.addres = row.addres
-  } catch (error) {
+    dialogValue.image = row.image
+  } else {
     dialogValue.id = ''
     dialogValue.nickName = ''
     dialogValue.password = ''
@@ -327,6 +392,7 @@ const action = (row, type: string) => {
     dialogValue.userName = ''
     dialogValue.role = ''
     dialogValue.addres = ''
+    dialogValue.image = state.squareUrl
   }
 }
 
