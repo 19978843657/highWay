@@ -13,7 +13,9 @@ export const deleteProperty = (params: any) => {
 export const EditProperty = (params: any) => {
   return request.put({ url: '/Assets/update', params })
 }
-
+export const getCountProperty = (params: any) => {
+  return request.get({ url: '/Assets/selectCountType', params })
+}
 //Patrol API
 export const getPatrol = (params: any) => {
   return request.get({ url: '/Schedule/selectPageInfo', params })
