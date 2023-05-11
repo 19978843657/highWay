@@ -1,4 +1,3 @@
-//资产
 <template>
   <ContentWrap
     :title="'资产管理'"
@@ -178,7 +177,7 @@
     </template>
   </Dialog>
 
-  <PrintData :pVisible="pVisible" :pData="pData" />
+  <!-- <PrintData :pVisible="pVisible" :pData="pData" /> -->
 </template>
 
 <script setup lang="ts">
