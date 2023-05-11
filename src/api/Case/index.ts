@@ -10,6 +10,9 @@ export const AddCase = (data: any) => {
 export const deleteCase = (params: any) => {
   return request.get({ url: '/Case/delete', params })
 }
+export const getCaseCount = (params: any) => {
+  return request.get({ url: '/Case/selectCount', params })
+}
 export const EditCase = (params: any) => {
   return request.put({ url: '/Case/updateById', params })
 }
