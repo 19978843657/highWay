@@ -34,17 +34,21 @@ const loginOut = () => {
     })
     .catch(() => {})
 }
+const userInfo: any = JSON.parse(sessionStorage.getItem('userInfo')) //字符串转换格式
+console.log(userInfo)
+
+//个人详细信息
+const userObj = JSON.parse(userInfo.v)
+console.log(userObj.userName, 'val')
 </script>
 
 <template>
   <ElDropdown :class="prefixCls" trigger="click">
     <div class="flex items-center">
-      <img
-        src="@/assets/imgs/avatar.png"
-        alt=""
-        class="w-[calc(var(--logo-height)-25px)] rounded-[50%]"
-      />
-      <span class="<lg:hidden text-14px pl-[5px] text-[var(--top-header-text-color)]">Archer</span>
+      <img :src="userObj.image" alt="" class="w-[calc(var(--logo-height)-25px)] rounded-[50%]" />
+      <span class="<lg:hidden text-14px pl-[5px] text-[var(--top-header-text-color)]">{{
+        userObj.userName
+      }}</span>
     </div>
     <template #dropdown>
       <ElDropdownMenu>
