@@ -46,7 +46,9 @@ console.log(userObj.userName, 'val')
   <ElDropdown :class="prefixCls" trigger="click">
     <div class="flex items-center">
       <img :src="userObj.image" alt="" class="w-[calc(var(--logo-height)-25px)] rounded-[50%]" />
-      <span class="<lg:hidden text-14px pl-[5px] text-[var(--top-header-text-color)]">Archer</span>
+      <span class="<lg:hidden text-14px pl-[5px] text-[var(--top-header-text-color)]">{{
+        userObj.userName
+      }}</span>
     </div>
     <template #dropdown>
       <ElDropdownMenu>

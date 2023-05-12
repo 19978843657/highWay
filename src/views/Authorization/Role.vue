@@ -5,13 +5,11 @@
         <ElRow :gutter="20" justify="space-between">
           <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24">
             <div class="flex items-center">
-              <img
-                src="@/assets/imgs/avatar.png"
-                alt=""
-                class="w-70px h-70px rounded-[50%] mr-20px"
-              />
+              <img :src="userObj.image" alt="" class="w-70px h-70px rounded-[50%] mr-20px" />
               <div>
-                <div class="text-20px text-700"> 你好，Archer，欢迎来到个人中心! </div>
+                <div class="text-20px text-700">
+                  你好，{{ userObj.userName }}，欢迎来到个人中心!
+                </div>
                 <div class="mt-10px text-14px text-gray-500"> 祝你开心每一天！ </div>
                 <!-- {{ weather[0].city }}　{{ weather[0].temperature }}℃　{{ weather[0].weather }} -->
               </div>
