@@ -205,7 +205,6 @@ import {
 } from 'element-plus'
 import { ref, reactive, onMounted, watch } from 'vue'
 import qrcode from 'qrcode'
-import PrintData from '@/PrintData.vue'
 import { getProperty, AddProperty, deleteProperty, EditProperty } from '@/api/PropertyPatrol'
 const loading = ref(false)
 
@@ -263,7 +262,6 @@ const rules = reactive<FormRules>({
 })
 const dialogValueRef = ref<FormInstance>()
 const pData = ref([])
-const pVisible = ref(false)
 
 //打印
 const Print = (row) => {
