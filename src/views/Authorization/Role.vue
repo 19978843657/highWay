@@ -18,17 +18,19 @@
           <div class="flex h-70px items-center justify-end <sm:mt-18px">
             <div class="px-8px text-right">
               <div class="text-14px text-gray-400 mb-20px text-center">天气</div>
-              <div>{{ weather[0].weather }}</div>
+              <div v-if="weather && weather.length > 0">{{ weather[0].weather }}</div>
             </div>
             <ElDivider direction="vertical" />
             <div class="px-8px text-right">
               <div class="text-14px text-gray-400 mb-20px text-center">气温</div>
-              <div>{{ weather[0].temperature }}℃</div>
+              <div v-if="weather && weather.length > 0">{{ weather[0].temperature }}℃</div>
             </div>
             <ElDivider direction="vertical" />
             <div class="px-8px text-right">
               <div class="text-14px text-gray-400 mb-20px text-center">城市</div>
-              <div style="margin: 0, auto">{{ weather[0].city }}</div>
+              <div style="margin: 0, auto" v-if="weather && weather.length > 0">{{
+                weather[0].city
+              }}</div>
             </div>
           </div>
         </ElCol>
@@ -84,7 +86,9 @@
           <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
             >用户名: {{ queryTable.nickName }}</ElCol
           >
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">密　码:</ElCol>
+          <ElCol :xl="24" :lg="24" :md="24" :sm="24" :xs="24" class="mb-10px"
+            >手　机:{{ queryTable.phone }}</ElCol
+          >
           <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
             >权　限: {{ queryTable.role }}</ElCol
           >
@@ -98,19 +102,27 @@
     <ElDialog v-model="dialogVisible" title="个人信息编辑" width="30%" draggable>
       <el-form :rules="rules">
         <ElFormItem label="姓　名:" prop="name">
-          <ElInput placeholder="请输入内容" clearable />
+          <ElInput placeholder="请输入内容" clearable v-model="queryTable.userName" />
         </ElFormItem>
         <ElFormItem label="用户名:" prop="userName">
-          <el-input placeholder="请输入内容" clearable />
+          <el-input placeholder="请输入内容" clearable v-model="queryTable.nickName" />
+        </ElFormItem>
+        <ElFormItem label="手　机:" prop="phone">
+          <el-input placeholder="请输入内容" clearable v-model="queryTable.phone" />
         </ElFormItem>
         <ElFormItem label="密　码:" prop="password">
-          <el-input placeholder="请输入内容" clearable show-password />
+          <el-input
+            placeholder="请输入内容"
+            clearable
+            v-model="queryTable.password"
+            :show-password="queryTable.password"
+          />
         </ElFormItem>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确定</el-button>
+          <el-button @click="reset()">取消</el-button>
+          <el-button type="primary" @click="Save(queryTable)">确定</el-button>
         </span>
       </template>
     </ElDialog>
@@ -129,7 +141,8 @@ import {
   ElForm,
   ElFormItem,
   ElInput,
-  FormRules
+  FormRules,
+  ElMessage
 } from 'element-plus'
 import { ref, reactive, onMounted } from 'vue'
 // import { EChartsOption } from 'echarts'
@@ -142,6 +155,7 @@ import { ref, reactive, onMounted } from 'vue'
 
 import axios from 'axios'
 import AMapLoader from '@amap/amap-jsapi-loader'
+import { EditUser } from '@/api/Authorization'
 // import { testApi } from '@/api/table'
 const dialogVisible = ref(false)
 const rules = reactive<FormRules>({})
@@ -149,12 +163,17 @@ const rules = reactive<FormRules>({})
 const Edit = () => {
   dialogVisible.value = true
 }
-// const test = () => {
-//   testApi().then((res) => {
-//     console.log(res)
-//   })
-// }
-// test()
+//修改
+const Save = (queryTable) => {
+  EditUser(queryTable).then((res) => {
+    if (res) {
+      ElMessage.success('编辑成功')
+    } else {
+      ElMessage.warning('编辑失败')
+    }
+  })
+  dialogVisible.value = false
+}
 
 // 个人信息
 
@@ -164,6 +183,17 @@ console.log(userInfo)
 //个人详细信息
 const userObj = JSON.parse(userInfo.v)
 console.log(userObj.userName, 'val')
+
+function reset() {
+  queryTable.id = userObj.id
+  queryTable.nickName = userObj.nickName
+  queryTable.password = userObj.password
+  queryTable.phone = userObj.phone
+  queryTable.userName = userObj.userName
+  queryTable.role = userObj.role
+  queryTable.createTime = userObj.createTime
+  dialogVisible.value = false
+}
 
 const queryTable = reactive<{
   id: any
@@ -191,7 +221,6 @@ const options = {
   plugins: ['AMap.Geolocation']
 }
 let city = ref('')
-const weather = ref()
 
 onMounted(() => {
   AMapLoader.load(options).then((AMap) => {
@@ -226,7 +255,7 @@ function getWeather(city) {
       loading.value = false
     })
 }
-
+const weather = ref('')
 const loading = ref(true)
 
 // 获取统计数
