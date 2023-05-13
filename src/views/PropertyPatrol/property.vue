@@ -79,7 +79,12 @@
       </ElTableColumn>
       <ElTableColumn label="操作" align="center">
         <template #default="{ row }">
-          <Icon icon="ic:twotone-print" color="#1769aa" @click="Print(row)" class="icon" />
+          <Icon
+            icon="ic:twotone-print"
+            color="#1769aa"
+            @click="exportDataExcel(row)"
+            class="icon"
+          />
           <Icon icon="ei:pencil" color="#90bb27" @click="action(row, 'edit')" class="icon" />
           <Icon icon="ei:trash" color="#f56c6c" @click="delData(row.id)" class="icon" />
         </template>
@@ -206,6 +211,60 @@ import {
 import { ref, reactive, onMounted, watch } from 'vue'
 import qrcode from 'qrcode'
 import { getProperty, AddProperty, deleteProperty, EditProperty } from '@/api/PropertyPatrol'
+import * as XLSX from 'xlsx'
+import * as FileSaver from 'file-saver'
+const employeeList: any = []
+
+function exportDataExcel(row: any) {
+  employeeList.pop()
+  const exportdata = reactive<{
+    id: any
+    assetsCode: any
+    assetsName: any
+    assetsType: any
+    state: any
+    assetsData: any
+    userId: any
+  }>({
+    id: null,
+    assetsCode: null,
+    assetsName: null,
+    assetsType: null,
+    state: 'false',
+    assetsData: null,
+    userId: null
+  })
+  exportdata.id = row.id
+  exportdata.assetsCode = row.assetsCode
+  exportdata.assetsName = row.assetsName
+  exportdata.assetsType = row.assetsType
+  exportdata.state = row.state
+  exportdata.assetsData = row.assetsData
+  exportdata.userId = row.userId
+  employeeList.push({
+    id: row.id,
+    资产编号: row.assetsCode,
+    资产名称: row.assetsName,
+    资产类型: row.assetsType,
+    状态: row.state,
+    资产负责任: row.userId
+  })
+  console.log(employeeList, 'emp')
+
+  function exportExcel() {
+    const worksheet = XLSX.utils.json_to_sheet(employeeList)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+    const data = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    })
+    const str = `${row.assetsCode}.xlsx`
+    FileSaver.saveAs(data, str)
+  }
+  exportExcel()
+}
+
 const loading = ref(false)
 
 const options = [
