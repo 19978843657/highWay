@@ -9,6 +9,10 @@ export const loginApi = (data: UserType): Promise<IResponse<UserType>> => {
   return request.post({ url: '/login/login', data })
 }
 
+export const getCode = (params: any) => {
+  return request.get({ url: '/login/getCode', params })
+}
+
 export const loginOutApi = (): Promise<IResponse> => {
   return request.get({ url: '/login/loginOut' })
 }

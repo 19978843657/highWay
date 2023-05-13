@@ -1,40 +1,38 @@
 <template>
   <div>
     <ElCard shadow="never">
-      <ElSkeleton :loading="loading" animated>
-        <ElRow :gutter="20" justify="space-between">
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24">
-            <div class="flex items-center">
-              <img :src="userObj.image" alt="" class="w-70px h-70px rounded-[50%] mr-20px" />
-              <div>
-                <div class="text-20px text-700">
-                  你好，{{ userObj.userName }}，欢迎来到个人中心!
-                </div>
-                <div class="mt-10px text-14px text-gray-500"> 祝你开心每一天！ </div>
-                <!-- {{ weather[0].city }}　{{ weather[0].temperature }}℃　{{ weather[0].weather }} -->
+      <ElRow :gutter="20" justify="space-between">
+        <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24">
+          <div class="flex items-center">
+            <img :src="userObj.image" alt="" class="w-70px h-70px rounded-[50%] mr-20px" />
+            <div>
+              <div class="text-20px text-700">
+                你好，{{ userObj.userName }}，欢迎来到个人中心!
               </div>
+              <div class="mt-10px text-14px text-gray-500"> 祝你开心每一天！ </div>
+              <!-- {{ weather[0].city }}　{{ weather[0].temperature }}℃　{{ weather[0].weather }} -->
             </div>
-          </ElCol>
-          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24">
-            <div class="flex h-70px items-center justify-end <sm:mt-18px">
-              <div class="px-8px text-right">
-                <div class="text-14px text-gray-400 mb-20px text-center">天气</div>
-                <div>{{ weather[0].weather }}</div>
-              </div>
-              <ElDivider direction="vertical" />
-              <div class="px-8px text-right">
-                <div class="text-14px text-gray-400 mb-20px text-center">气温</div>
-                <div>{{ weather[0].temperature }}℃</div>
-              </div>
-              <ElDivider direction="vertical" />
-              <div class="px-8px text-right">
-                <div class="text-14px text-gray-400 mb-20px text-center">城市</div>
-                <div style="margin: 0, auto">{{ weather[0].city }}</div>
-              </div>
+          </div>
+        </ElCol>
+        <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24">
+          <div class="flex h-70px items-center justify-end <sm:mt-18px">
+            <div class="px-8px text-right">
+              <div class="text-14px text-gray-400 mb-20px text-center">天气</div>
+              <div>{{ weather[0].weather }}</div>
             </div>
-          </ElCol>
-        </ElRow>
-      </ElSkeleton>
+            <ElDivider direction="vertical" />
+            <div class="px-8px text-right">
+              <div class="text-14px text-gray-400 mb-20px text-center">气温</div>
+              <div>{{ weather[0].temperature }}℃</div>
+            </div>
+            <ElDivider direction="vertical" />
+            <div class="px-8px text-right">
+              <div class="text-14px text-gray-400 mb-20px text-center">城市</div>
+              <div style="margin: 0, auto">{{ weather[0].city }}</div>
+            </div>
+          </div>
+        </ElCol>
+      </ElRow>
     </ElCard>
 
     <ElRow class="mt-20px" :gutter="20" justify="space-between">
@@ -80,21 +78,19 @@
           </div>
           <hr />
           <br />
-          <ElSkeleton :loading="loading" animated>
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
-              >姓　名: {{ queryTable.userName }}</ElCol
-            >
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
-              >用户名: {{ queryTable.nickName }}</ElCol
-            >
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">密　码:</ElCol>
-            <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
-              >权　限: {{ queryTable.role }}</ElCol
-            >
-            <ElCol :xl="24" :lg="24" :md="24" :sm="24" :xs="24" class="mb-10px"
-              >时　间: {{ queryTable.createTime }}</ElCol
-            >
-          </ElSkeleton>
+          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
+            >姓　名: {{ queryTable.userName }}</ElCol
+          >
+          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
+            >用户名: {{ queryTable.nickName }}</ElCol
+          >
+          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px">密　码:</ElCol>
+          <ElCol :xl="12" :lg="12" :md="12" :sm="24" :xs="24" class="mb-10px"
+            >权　限: {{ queryTable.role }}</ElCol
+          >
+          <ElCol :xl="24" :lg="24" :md="24" :sm="24" :xs="24" class="mb-10px"
+            >时　间: {{ queryTable.createTime }}</ElCol
+          >
         </ElCard>
       </ElCol>
     </ElRow>
@@ -125,7 +121,6 @@
 import {
   ElRow,
   ElCol,
-  ElSkeleton,
   ElCard,
   ElDivider,
   ElLink,
@@ -207,6 +202,8 @@ onMounted(() => {
       convert: true // 是否使用坐标转换， 默认为 true
     })
     geolocation.getCityInfo(function (status, result) {
+      console.log('1111111')
+
       if (status === 'complete') {
         city.value = result.city
         console.log('城市查询成功：', city.value)

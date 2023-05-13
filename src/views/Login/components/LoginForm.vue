@@ -69,7 +69,7 @@ import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
-import { loginApi, getTestRoleApi, getAdminRoleApi } from '@/api/login'
+import { loginApi, getTestRoleApi, getAdminRoleApi, getCode } from '@/api/login'
 import { useCache } from '@/hooks/web/useCache'
 import { useAppStore } from '@/store/modules/app'
 import { usePermissionStore } from '@/store/modules/permission'
@@ -167,7 +167,11 @@ watch(
     immediate: true
   }
 )
-
+const getcode = () => {
+  const { getFormData } = methods
+  const formData = getFormData<UserType>()
+  const res = getCode({ id: formData.username })
+}
 // 登录
 const signIn = async () => {
   const formRef = unref(elFormRef)
@@ -176,6 +180,7 @@ const signIn = async () => {
       loading.value = true
       const { getFormData } = methods
       const formData = await getFormData<UserType>()
+
       formData.username = 'admin'
       try {
         const res = await loginApi(formData)
