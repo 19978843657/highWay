@@ -14,7 +14,7 @@
 
     <template #tool>
       <div class="flex justify-between items-center w-[100%]">
-        <ElCheckbox v-model="remember" :label="t('login.remember')" size="small" />
+        <ElCheckbox v-model="yzm" label="使用验证码登录" size="small" />
         <ElLink type="primary" :underline="false">{{ t('login.forgetPassword') }}</ElLink>
       </div>
     </template>
@@ -25,10 +25,8 @@
           {{ t('login.login') }}
         </ElButton>
       </div>
-      <div class="w-[100%] mt-15px">
-        <ElButton class="w-[100%]" @click="toRegister">
-          {{ t('login.register') }}
-        </ElButton>
+      <div class="w-[100%] mt-15px" v-show="yzm">
+        <ElButton class="w-[100%]" @click="getcode"> 获取验证码 </ElButton>
       </div>
     </template>
 
@@ -78,6 +76,7 @@ import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FormSchema } from '@/types/form'
+import { ElMessage } from 'element-plus'
 
 const { required } = useValidator()
 
@@ -148,7 +147,7 @@ const schema = reactive<FormSchema[]>([
 
 const iconSize = 30
 
-const remember = ref(false)
+const yzm = ref(false)
 
 const { register, elFormRef, methods } = useForm()
 
@@ -167,11 +166,7 @@ watch(
     immediate: true
   }
 )
-const getcode = () => {
-  const { getFormData } = methods
-  const formData = getFormData<UserType>()
-  const res = getCode({ id: formData.username })
-}
+
 // 登录
 const signIn = async () => {
   const formRef = unref(elFormRef)
@@ -180,6 +175,7 @@ const signIn = async () => {
       loading.value = true
       const { getFormData } = methods
       const formData = await getFormData<UserType>()
+      console.log(formData, 'formData')
 
       formData.username = 'admin'
       try {
@@ -209,7 +205,18 @@ const signIn = async () => {
     }
   })
 }
-
+const getcode = async () => {
+  const formRef = unref(elFormRef)
+  await formRef?.validate(async (isValid) => {
+    if (isValid) {
+      const { getFormData } = methods
+      const formData = await getFormData<UserType>()
+      getCode({ id: formData.id }).then((res: any) => {
+        ElMessage.success(res.msg)
+      })
+    }
+  })
+}
 // 获取角色信息
 const getRole = async () => {
   const { getFormData } = methods
